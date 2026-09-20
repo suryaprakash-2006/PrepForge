@@ -44,6 +44,13 @@ class Settings(BaseSettings):
     # ----------------------------------------------------------
     CORS_ORIGINS: str = "http://localhost:5173"
 
+    # ----------------------------------------------------------
+    # Authentication (JWT)
+    # ----------------------------------------------------------
+    JWT_SECRET: str
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+
     model_config = SettingsConfigDict(
         # Load from backend/.env when running from the backend/ directory.
         # If the file does not exist, env vars still work — no error raised.

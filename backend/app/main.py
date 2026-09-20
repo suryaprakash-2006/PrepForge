@@ -126,9 +126,13 @@ app.add_middleware(
 )
 
 
+from app.api import api_router
+
 # ------------------------------------------------------------------
 # Routes
 # ------------------------------------------------------------------
+
+app.include_router(api_router, prefix=settings.API_PREFIX)
 
 @app.get(
     f"{settings.API_PREFIX}/health",

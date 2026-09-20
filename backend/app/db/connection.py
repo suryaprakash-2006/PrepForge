@@ -61,6 +61,10 @@ class _DatabaseClient:
         # Ping the admin database to verify the connection is live
         # before the application starts accepting requests.
         await self._client.admin.command("ping")
+        
+        # Setup indexes
+        await self._database["users"].create_index("email", unique=True)
+        
         logger.info(
             "MongoDB connected — database: '%s'", settings.DATABASE_NAME
         )
