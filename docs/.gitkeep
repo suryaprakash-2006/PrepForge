@@ -1,0 +1,14 @@
+# PrepForge — Documentation
+
+This directory will contain project documentation as the project matures.
+
+Planned documentation:
+
+- `architecture.md` — detailed architecture decisions and diagrams
+- `api.md` — REST API reference
+- `setup.md` — detailed local development setup guide
+- `contributing.md` — contribution guidelines (if applicable)
+- `data-model.md` — MongoDB collection and schema documentation
+- `security.md` — security design decisions
+
+Documentation will be added incrementally alongside each development phase.

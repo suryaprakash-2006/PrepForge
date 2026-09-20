@@ -1,0 +1,7 @@
+# backend/
+
+This directory will contain the FastAPI + Python backend application.
+
+It will be scaffolded in **Phase 2 — Backend Scaffold**.
+
+Do not add files here manually until that phase begins.
