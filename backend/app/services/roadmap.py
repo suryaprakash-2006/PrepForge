@@ -16,10 +16,15 @@ async def initialize_default_roadmap(user_id: str):
         week_doc = {
             "user_id": user_id,
             "week_number": week_data["week_number"],
+            "phase": week_data.get("phase"),
             "title": week_data["title"],
             "description": week_data["description"],
             "start_date": None,
             "end_date": None,
+            "targets": week_data.get("targets", {}),
+            "assessments": week_data.get("assessments", []),
+            "mocks": week_data.get("mocks", []),
+            "milestones": week_data.get("milestones", []),
             "created_at": now,
             "updated_at": now
         }
@@ -35,6 +40,8 @@ async def initialize_default_roadmap(user_id: str):
                 "week_number": week_data["week_number"]
             })
             week_id = str(existing_week["_id"])
+            # In a real migration, we might want to update the week's phase/targets here,
+            # but to preserve idempotency and avoid destructive updates, we just get the id.
             
         # Initialize tasks for this week
         for task_data in week_data.get("tasks", []):
@@ -56,6 +63,10 @@ async def initialize_default_roadmap(user_id: str):
                     "estimated_minutes": task_data.get("estimated_minutes"),
                     "completed": False,
                     "completed_at": None,
+                    "task_type": task_data.get("task_type"),
+                    "difficulty": task_data.get("difficulty"),
+                    "priority": task_data.get("priority"),
+                    "subtasks": task_data.get("subtasks", []),
                     "created_at": now,
                     "updated_at": now
                 }

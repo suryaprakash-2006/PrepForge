@@ -181,6 +181,7 @@ const Roadmap = () => {
                                 >
                                     <div style={{ fontWeight: 'bold' }}>Week {week.week_number}</div>
                                     <div style={{ fontSize: '14px', color: '#555', marginBottom: '8px' }}>{week.title}</div>
+                                    {week.phase && <div style={{ fontSize: '12px', fontWeight: 'bold', color: '#0066cc', marginBottom: '8px' }}>{week.phase}</div>}
                                     
                                     <div style={{ fontSize: '12px', color: '#666', display: 'flex', justifyContent: 'space-between' }}>
                                         <span>{wCompleted} / {wTotal} tasks completed</span>
@@ -203,9 +204,30 @@ const Roadmap = () => {
                         </div>
                     ) : (
                         <div>
-                            <h3 style={{ marginTop: 0 }}>Week {selectedWeek.week_number}: {selectedWeek.title}</h3>
+                            {selectedWeek.phase && <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#0066cc', textTransform: 'uppercase' }}>{selectedWeek.phase}</div>}
+                            <h3 style={{ marginTop: '5px' }}>Week {selectedWeek.week_number}: {selectedWeek.title}</h3>
                             <p style={{ color: '#555', marginBottom: '15px' }}>{selectedWeek.description}</p>
                             
+                            {/* Planner Metadata */}
+                            {(selectedWeek.targets && Object.keys(selectedWeek.targets).length > 0) && (
+                                <div style={{ marginBottom: '15px', padding: '10px', backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '4px' }}>
+                                    <strong style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>Weekly Targets:</strong>
+                                    <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', fontSize: '13px', color: '#444' }}>
+                                        {Object.entries(selectedWeek.targets).map(([k, v]) => (
+                                            <span key={k}><b>{k}:</b> {v}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {(selectedWeek.assessments?.length > 0 || selectedWeek.mocks?.length > 0 || selectedWeek.milestones?.length > 0) && (
+                                <div style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                    {selectedWeek.assessments?.map((a, i) => <span key={`a${i}`} style={{ padding: '4px 8px', backgroundColor: '#e2e8f0', fontSize: '12px', borderRadius: '4px' }}>📝 {a.title}</span>)}
+                                    {selectedWeek.mocks?.map((m, i) => <span key={`m${i}`} style={{ padding: '4px 8px', backgroundColor: '#fed7d7', fontSize: '12px', borderRadius: '4px' }}>🎯 {m.title}</span>)}
+                                    {selectedWeek.milestones?.map((m, i) => <span key={`ms${i}`} style={{ padding: '4px 8px', backgroundColor: '#fefcbf', fontSize: '12px', borderRadius: '4px' }}>🏆 {m.title}</span>)}
+                                </div>
+                            )}
+
                             {/* Week Progress Bar */}
                             <div style={{ marginBottom: '25px', padding: '15px', backgroundColor: 'white', border: '1px solid #ddd', borderRadius: '4px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '14px' }}>
@@ -274,11 +296,22 @@ const Roadmap = () => {
                                                     {task.title}
                                                 </div>
                                                 {task.description && <div style={{ fontSize: '14px', color: '#555', marginTop: '5px' }}>{task.description}</div>}
-                                                <div style={{ fontSize: '12px', color: '#888', marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
+                                                <div style={{ fontSize: '12px', color: '#888', marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
                                                     {task.category && <span style={{ backgroundColor: '#e2e8f0', padding: '2px 6px', borderRadius: '4px', color: '#4a5568' }}>{task.category}</span>}
+                                                    {task.task_type && <span style={{ backgroundColor: '#fed7d7', padding: '2px 6px', borderRadius: '4px', color: '#c53030' }}>{task.task_type}</span>}
                                                     {task.estimated_minutes && <span>⏱️ {task.estimated_minutes} min</span>}
                                                     {task.completed_at && <span style={{ color: '#28a745' }}>Completed</span>}
                                                 </div>
+                                                {task.subtasks?.length > 0 && (
+                                                    <div style={{ marginTop: '10px', fontSize: '13px', color: '#555' }}>
+                                                        <strong style={{ display: 'block', marginBottom: '4px' }}>Subtasks:</strong>
+                                                        <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                                                            {task.subtasks.map((st, i) => (
+                                                                <li key={i}>{st.title}</li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                )}
                                             </div>
                                         </label>
                                     ))

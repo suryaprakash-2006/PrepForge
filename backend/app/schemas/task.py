@@ -1,6 +1,10 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List, Dict, Any
+
+class Subtask(BaseModel):
+    title: str
+    completed: bool = False
 
 class TaskCreate(BaseModel):
     week_id: str
@@ -10,6 +14,10 @@ class TaskCreate(BaseModel):
     day_number: Optional[int] = Field(None, ge=1, le=7)
     estimated_minutes: Optional[int] = Field(None, ge=0)
     completed: bool = False
+    task_type: Optional[str] = None
+    difficulty: Optional[str] = None
+    priority: Optional[str] = None
+    subtasks: Optional[List[Subtask]] = []
 
 class TaskUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=1, max_length=200)
@@ -18,6 +26,10 @@ class TaskUpdate(BaseModel):
     day_number: Optional[int] = Field(None, ge=1, le=7)
     estimated_minutes: Optional[int] = Field(None, ge=0)
     completed: Optional[bool] = None
+    task_type: Optional[str] = None
+    difficulty: Optional[str] = None
+    priority: Optional[str] = None
+    subtasks: Optional[List[Subtask]] = None
 
 class TaskResponse(BaseModel):
     id: str
@@ -29,6 +41,10 @@ class TaskResponse(BaseModel):
     day_number: Optional[int]
     estimated_minutes: Optional[int]
     completed: bool
+    task_type: Optional[str] = None
+    difficulty: Optional[str] = None
+    priority: Optional[str] = None
+    subtasks: Optional[List[Subtask]] = []
     completed_at: Optional[datetime]
     created_at: datetime
     updated_at: datetime

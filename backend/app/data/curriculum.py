@@ -1,149 +1,241 @@
-CURRICULUM_VERSION = "1.0"
+CURRICULUM_VERSION = "planner-2026-09-v1"
+
+DSA_SUBTASKS = [
+    {"title": "Understand problem", "completed": False},
+    {"title": "Identify constraints", "completed": False},
+    {"title": "Brute force", "completed": False},
+    {"title": "Complexity analysis", "completed": False},
+    {"title": "Identify bottleneck", "completed": False},
+    {"title": "Optimize", "completed": False},
+    {"title": "Explain why optimization works", "completed": False},
+    {"title": "Code optimal solution", "completed": False},
+    {"title": "Test", "completed": False},
+    {"title": "Edge cases", "completed": False},
+    {"title": "Final complexity", "completed": False}
+]
+
+SQL_SUBTASKS = [
+    {"title": "Understand requirements", "completed": False},
+    {"title": "Identify tables", "completed": False},
+    {"title": "Write simple query", "completed": False},
+    {"title": "Add filtering", "completed": False},
+    {"title": "Add aggregation", "completed": False},
+    {"title": "Optimize", "completed": False},
+    {"title": "Test edge cases", "completed": False},
+    {"title": "Verify output", "completed": False}
+]
 
 CURRICULUM = [
     {
         "week_number": 1,
-        "title": "Foundations & Programming (Python & C++)",
-        "description": "Establish your programming foundation, review core language syntax, and practice basic manipulation.",
+        "phase": "Phase 1 — Foundation",
+        "title": "Baseline Assessment & Core Fundamentals",
+        "description": "Establish a baseline and begin core preparation.",
+        "targets": {"Coding": 14, "SQL": 12},
+        "assessments": [
+            {"type": "Baseline", "topics": ["General Programming", "Basic Logic"], "title": "Week 1 baseline coding evaluation"}
+        ],
+        "mocks": [],
+        "milestones": [],
         "tasks": [
-            {"day_number": 1, "title": "Setup environment and review Git basics", "category": "Software Engineering", "estimated_minutes": 45, "description": "Ensure your local IDE is ready, and review Git add, commit, push, and branching."},
-            {"day_number": 2, "title": "Practice Python data types, loops, and functions", "category": "Python", "estimated_minutes": 60, "description": "Write small scripts covering lists, dictionaries, list comprehensions, and functions."},
-            {"day_number": 3, "title": "Practice C++ pointers, references, and memory", "category": "C++", "estimated_minutes": 60, "description": "Review pointer arithmetic, pass-by-reference, and dynamic memory allocation."},
-            {"day_number": 4, "title": "Solve 3 basic string manipulation problems", "category": "Problem Solving", "estimated_minutes": 60, "description": "Focus on reversing strings, checking palindromes, and character counting."},
-            {"day_number": 5, "title": "Solve 3 basic array manipulation problems", "category": "Problem Solving", "estimated_minutes": 60, "description": "Focus on finding max/min elements, reversing arrays, and basic shifting."},
-            {"day_number": 6, "title": "Review Time & Space Complexity (Big-O)", "category": "DSA", "estimated_minutes": 45, "description": "Understand O(1), O(N), O(N^2), O(log N), and analyze your previous solutions."}
+            {"title": "Complete Baseline Coding Evaluation", "category": "Problem Solving", "task_type": "ASSESSMENT", "estimated_minutes": 120, "description": "Take the initial baseline test."},
+            {"title": "Solve 2 basic arrays problems", "category": "DSA", "task_type": "CODING", "estimated_minutes": 60, "subtasks": DSA_SUBTASKS},
+            {"title": "Solve 2 basic string problems", "category": "DSA", "task_type": "CODING", "estimated_minutes": 60, "subtasks": DSA_SUBTASKS},
+            {"title": "Solve 3 basic SELECT & WHERE problems", "category": "SQL", "task_type": "SQL", "estimated_minutes": 60, "subtasks": SQL_SUBTASKS},
+            {"title": "Review OOP Fundamentals", "category": "OOP", "task_type": "LEARN", "estimated_minutes": 60, "description": "Review classes, objects, and encapsulation."}
         ]
     },
     {
         "week_number": 2,
-        "title": "Core DSA - Arrays, Strings, Hashing",
-        "description": "Dive into the most frequently asked data structures in early interview rounds.",
+        "phase": "Phase 1 — Foundation",
+        "title": "Hashing & Joins",
+        "description": "Introduction to hash maps and multi-table SQL queries.",
+        "targets": {},
+        "assessments": [],
+        "mocks": [],
+        "milestones": [],
         "tasks": [
-            {"day_number": 1, "title": "Practice array traversal and prefix sums", "category": "DSA", "estimated_minutes": 90, "description": "Solve problems using prefix sum arrays to quickly find subarray sums."},
-            {"day_number": 2, "title": "Practice hash maps for frequency counting", "category": "DSA", "estimated_minutes": 90, "description": "Use hash maps to solve pair-finding (e.g., Two Sum) and counting problems."},
-            {"day_number": 3, "title": "Solve 3 two-pointer problems", "category": "DSA", "estimated_minutes": 60, "description": "Apply the two-pointer technique on sorted arrays (e.g., removing duplicates)."},
-            {"day_number": 4, "title": "Solve 3 string matching and palindrome problems", "category": "DSA", "estimated_minutes": 60, "description": "Focus on valid palindrome variations and substring searching basic logic."},
-            {"day_number": 5, "title": "Practice basic recursion on strings and arrays", "category": "DSA", "estimated_minutes": 60, "description": "Understand the call stack by reversing strings recursively and finding factorials."}
+            {"title": "Solve 3 Hash Map problems (e.g., Two Sum)", "category": "DSA", "task_type": "CODING", "estimated_minutes": 90, "subtasks": DSA_SUBTASKS},
+            {"title": "Solve 3 SQL JOIN problems", "category": "SQL", "task_type": "SQL", "estimated_minutes": 90, "subtasks": SQL_SUBTASKS},
+            {"title": "Review OS Processes and Threads", "category": "Operating Systems", "task_type": "CORE_CS", "estimated_minutes": 60}
         ]
     },
     {
         "week_number": 3,
-        "title": "Core DSA - Linked Lists, Stacks, Queues",
-        "description": "Master sequential dynamic data structures and LIFO/FIFO patterns.",
+        "phase": "Phase 1 — Foundation",
+        "title": "Sliding Window & Foundational Concepts",
+        "description": "Advanced array techniques and core computer science fundamentals.",
+        "targets": {},
+        "assessments": [
+            {"type": "Quiz", "title": "Week 3 quiz", "topics": ["Hashing", "Joins", "OS"]}
+        ],
+        "mocks": [],
+        "milestones": [
+            {"title": "Foundation completed", "target_week": 3, "description": "Completed all foundational topics."}
+        ],
         "tasks": [
-            {"day_number": 1, "title": "Implement a singly linked list and reverse it", "category": "DSA", "estimated_minutes": 60, "description": "Write a node class and manually reverse the pointers iteratively."},
-            {"day_number": 2, "title": "Solve cycle detection and middle element problems", "category": "DSA", "estimated_minutes": 60, "description": "Apply the slow/fast pointer (Tortoise and Hare) algorithm."},
-            {"day_number": 3, "title": "Implement a stack and solve balanced parentheses", "category": "DSA", "estimated_minutes": 60, "description": "Use a list/array as a stack to validate parenthesis strings."},
-            {"day_number": 4, "title": "Practice queue operations and monotonic stacks", "category": "DSA", "estimated_minutes": 90, "description": "Solve 'Next Greater Element' using a monotonic stack."},
-            {"day_number": 5, "title": "Complete a timed 1-hour coding assessment", "category": "Assessment", "estimated_minutes": 60, "description": "Pick 2 easy and 1 medium question on Arrays/Strings/Linked Lists and solve them strictly within 60 minutes."}
+            {"title": "Solve 3 Sliding Window problems", "category": "DSA", "task_type": "CODING", "estimated_minutes": 90, "subtasks": DSA_SUBTASKS},
+            {"title": "Take Week 3 Quiz", "category": "Revision", "task_type": "ASSESSMENT", "estimated_minutes": 45}
         ]
     },
     {
         "week_number": 4,
-        "title": "Advanced DSA - Trees, Heaps, Basic Graphs",
-        "description": "Explore hierarchical data structures and network connectivity basics.",
+        "phase": "Phase 2 — Core Interview Preparation",
+        "title": "Data Structures Consolidation & First Mock",
+        "description": "Consolidating early DSA and introducing mock interviews.",
+        "targets": {"Coding": 14, "SQL": 12, "CS": 35, "Mock": 1},
+        "assessments": [],
+        "mocks": [
+            {"title": "Week 4 — Mock #1", "target_week": 4, "duration": 45, "areas": ["Arrays", "Strings", "SQL"], "purpose": "First mock interview exposure."}
+        ],
+        "milestones": [
+            {"title": "First mock interview", "target_week": 4, "description": "Complete your first technical mock interview."}
+        ],
         "tasks": [
-            {"day_number": 1, "title": "Implement a BST and perform DFS traversals", "category": "DSA", "estimated_minutes": 90, "description": "Code In-order, Pre-order, and Post-order traversals recursively."},
-            {"day_number": 2, "title": "Practice BFS (Level Order Traversal) on trees", "category": "DSA", "estimated_minutes": 60, "description": "Use a queue to traverse a binary tree level by level."},
-            {"day_number": 3, "title": "Solve 3 heap/priority queue problems", "category": "DSA", "estimated_minutes": 90, "description": "Solve Top K Frequent Elements or Kth Largest Element using heaps."},
-            {"day_number": 4, "title": "Implement basic graph representation", "category": "DSA", "estimated_minutes": 90, "description": "Represent a graph using an adjacency list and perform basic DFS/BFS."},
-            {"day_number": 5, "title": "Solve 2 graph connectivity / island problems", "category": "DSA", "estimated_minutes": 60, "description": "Apply grid-based DFS to solve 'Number of Islands' type problems."}
+            {"title": "Conduct Mock Interview #1", "category": "Mock Interviews", "task_type": "MOCK_INTERVIEW", "estimated_minutes": 60},
+            {"title": "Solve 3 Linked List problems", "category": "DSA", "task_type": "CODING", "estimated_minutes": 90, "subtasks": DSA_SUBTASKS},
+            {"title": "Review Computer Networks (OSI Model)", "category": "Computer Networks", "task_type": "CORE_CS", "estimated_minutes": 60}
         ]
     },
     {
         "week_number": 5,
-        "title": "Object-Oriented Programming (OOP)",
-        "description": "Understand core software design paradigms expected in technical interviews.",
+        "phase": "Phase 2 — Core Interview Preparation",
+        "title": "Trees & Binary Search Trees",
+        "description": "Mastering hierarchical data structures.",
+        "targets": {},
+        "assessments": [
+            {"type": "Quiz", "title": "Week 5 quiz"}
+        ],
+        "mocks": [],
+        "milestones": [],
         "tasks": [
-            {"day_number": 1, "title": "Explain Classes, Objects, and Encapsulation", "category": "OOP", "estimated_minutes": 60, "description": "Write code examples demonstrating private variables and getters/setters."},
-            {"day_number": 2, "title": "Practice Inheritance and Polymorphism", "category": "OOP", "estimated_minutes": 60, "description": "Create a base class and derived classes demonstrating method overriding."},
-            {"day_number": 3, "title": "Review Abstraction, Interfaces, and Composition", "category": "OOP", "estimated_minutes": 60, "description": "Understand 'has-a' vs 'is-a' relationships in system design."},
-            {"day_number": 4, "title": "Solve 3 common OOP interview design questions", "category": "OOP", "estimated_minutes": 90, "description": "E.g., Design a Parking Lot, Library Management System, or Deck of Cards."},
-            {"day_number": 5, "title": "Review SOLID principles", "category": "OOP", "estimated_minutes": 60, "description": "Understand Single Responsibility, Open/Closed, Liskov, Interface Segregation, and Dependency Inversion."}
+            {"title": "Solve 3 Tree Traversal problems", "category": "DSA", "task_type": "CODING", "estimated_minutes": 90, "subtasks": DSA_SUBTASKS},
+            {"title": "Take Week 5 Quiz", "category": "Revision", "task_type": "ASSESSMENT", "estimated_minutes": 45}
         ]
     },
     {
         "week_number": 6,
-        "title": "Relational Databases & SQL",
-        "description": "Master data storage, querying, and relational design concepts.",
+        "phase": "Phase 2 — Core Interview Preparation",
+        "title": "Heap, Priority Queue & Graphs",
+        "description": "Advanced data structures and graph traversal.",
+        "targets": {},
+        "assessments": [],
+        "mocks": [
+            {"title": "Week 6 — Mock #2", "target_week": 6, "duration": 45, "areas": ["Trees", "Heaps"], "purpose": "Note: Corrected from PDF typo."}
+        ],
+        "milestones": [],
         "tasks": [
-            {"day_number": 1, "title": "Review normalization, ACID, and basic keys", "category": "DBMS", "estimated_minutes": 60, "description": "Understand 1NF/2NF/3NF, primary keys, and foreign keys."},
-            {"day_number": 2, "title": "Write basic SELECT, filtering, and sorting queries", "category": "SQL", "estimated_minutes": 45, "description": "Practice WHERE, ORDER BY, IN, LIKE, and basic logical operators."},
-            {"day_number": 3, "title": "Solve 3 SQL JOIN and subquery problems", "category": "SQL", "estimated_minutes": 90, "description": "Practice INNER JOIN, LEFT JOIN, and writing nested SELECT queries."},
-            {"day_number": 4, "title": "Practice GROUP BY, HAVING, and aggregation", "category": "SQL", "estimated_minutes": 60, "description": "Use COUNT, SUM, AVG along with grouping clauses."},
-            {"day_number": 5, "title": "Review indexing concepts and optimization", "category": "DBMS", "estimated_minutes": 60, "description": "Understand how B-Tree indexes speed up lookups and the cost of indexing."}
+            {"title": "Solve 2 Graph BFS/DFS problems", "category": "DSA", "task_type": "CODING", "estimated_minutes": 90, "subtasks": DSA_SUBTASKS},
+            {"title": "Conduct Mock Interview #2", "category": "Mock Interviews", "task_type": "MOCK_INTERVIEW", "estimated_minutes": 60}
         ]
     },
     {
         "week_number": 7,
-        "title": "Core CS - Operating Systems",
-        "description": "Review fundamental low-level system concepts and concurrency.",
+        "phase": "Phase 2 — Core Interview Preparation",
+        "title": "Recursion, Backtracking & Final Core CS",
+        "description": "Advanced problem solving and concluding core CS topics.",
+        "targets": {},
+        "assessments": [
+            {"type": "Quiz", "title": "Week 7 quiz"}
+        ],
+        "mocks": [],
+        "milestones": [
+            {"title": "Core CS coverage completed", "target_week": 7, "description": "Finished OOP, OS, CN, and DBMS."}
+        ],
         "tasks": [
-            {"day_number": 1, "title": "Explain process vs thread and memory layout", "category": "Operating Systems", "estimated_minutes": 60, "description": "Understand the heap, stack, data, and text segments of a process."},
-            {"day_number": 2, "title": "Review CPU scheduling algorithms", "category": "Operating Systems", "estimated_minutes": 60, "description": "Review FCFS, Round Robin, SJF, and context switching overhead."},
-            {"day_number": 3, "title": "Explain synchronization, mutexes, and deadlocks", "category": "Operating Systems", "estimated_minutes": 90, "description": "Understand race conditions, semaphores, and the 4 Coffman conditions for deadlocks."},
-            {"day_number": 4, "title": "Review memory management and virtual memory", "category": "Operating Systems", "estimated_minutes": 60, "description": "Explain paging, segmentation, and page faults."},
-            {"day_number": 5, "title": "Answer 10 rapid-fire OS interview questions", "category": "Mock Interviews", "estimated_minutes": 45, "description": "Test your active recall on core OS concepts without looking at notes."}
+            {"title": "Solve 2 Backtracking problems", "category": "DSA", "task_type": "CODING", "estimated_minutes": 90, "subtasks": DSA_SUBTASKS},
+            {"title": "Take Week 7 Quiz", "category": "Revision", "task_type": "ASSESSMENT", "estimated_minutes": 45}
         ]
     },
     {
         "week_number": 8,
-        "title": "Core CS - Computer Networks & Architecture",
-        "description": "Understand how computers communicate and execute instructions.",
+        "phase": "Phase 3 — Domain Preparation",
+        "title": "Greedy & Data Science Foundations",
+        "description": "Domain-specific preparation begins alongside Greedy algorithms.",
+        "targets": {},
+        "assessments": [],
+        "mocks": [],
+        "milestones": [],
         "tasks": [
-            {"day_number": 1, "title": "Explain OSI & TCP/IP models", "category": "Computer Networks", "estimated_minutes": 60, "description": "Understand the responsibilities of the 7 layers of OSI."},
-            {"day_number": 2, "title": "Differentiate TCP vs UDP and the 3-way handshake", "category": "Computer Networks", "estimated_minutes": 60, "description": "Understand connection-oriented vs connectionless protocols."},
-            {"day_number": 3, "title": "Review HTTP/HTTPS, DNS, and basic routing", "category": "Computer Networks", "estimated_minutes": 60, "description": "Explain what happens when you type a URL into a browser."},
-            {"day_number": 4, "title": "Explain CPU pipeline, cache hierarchy, and registers", "category": "Computer Architecture", "estimated_minutes": 60, "description": "Understand L1/L2/L3 cache, memory latency, and instruction pipelining."},
-            {"day_number": 5, "title": "Complete a timed 1-hour CS fundamentals assessment", "category": "Assessment", "estimated_minutes": 60, "description": "Answer a mix of DBMS, OS, CN, and Architecture MCQ/Short-answer questions."}
+            {"title": "Learn Pandas/NumPy Basics", "category": "Data Science", "task_type": "LEARN", "estimated_minutes": 90},
+            {"title": "Solve 2 Greedy algorithms", "category": "DSA", "task_type": "CODING", "estimated_minutes": 60, "subtasks": DSA_SUBTASKS}
         ]
     },
     {
         "week_number": 9,
-        "title": "Software Engineering & Backend Basics",
-        "description": "Apply computer science to modern software development and API design.",
+        "phase": "Phase 3 — Domain Preparation",
+        "title": "ML Fundamentals & Algorithms",
+        "description": "Core Machine Learning concepts.",
+        "targets": {},
+        "assessments": [
+            {"type": "Quiz", "title": "Week 9 quiz"}
+        ],
+        "mocks": [],
+        "milestones": [],
         "tasks": [
-            {"day_number": 1, "title": "Review SDLC models, Git branching, and PRs", "category": "Software Engineering", "estimated_minutes": 60, "description": "Understand Agile/Scrum basics, Git merge vs rebase, and code review etiquette."},
-            {"day_number": 2, "title": "Explain REST API principles and HTTP status codes", "category": "SDE / Backend", "estimated_minutes": 45, "description": "Understand GET/POST/PUT/PATCH/DELETE and the 200/300/400/500 code families."},
-            {"day_number": 3, "title": "Review Authentication vs Authorization", "category": "SDE / Backend", "estimated_minutes": 60, "description": "Explain JWTs, session cookies, and basic RBAC concepts."},
-            {"day_number": 4, "title": "Practice writing unit tests", "category": "Software Engineering", "estimated_minutes": 60, "description": "Write test cases for a simple function handling edge cases, nulls, and boundaries."},
-            {"day_number": 5, "title": "Explain basic system design concepts", "category": "SDE / Backend", "estimated_minutes": 90, "description": "Understand load balancing, horizontal vs vertical scaling, and caching."}
+            {"title": "Review Supervised vs Unsupervised ML", "category": "AI/ML", "task_type": "LEARN", "estimated_minutes": 60},
+            {"title": "Take Week 9 Quiz", "category": "Revision", "task_type": "ASSESSMENT", "estimated_minutes": 45}
         ]
     },
     {
         "week_number": 10,
-        "title": "Data Science & AI/ML Fundamentals",
-        "description": "Review baseline data manipulation and machine learning terminology.",
+        "phase": "Phase 3 — Domain Preparation",
+        "title": "Advanced ML & Full Integration",
+        "description": "Wrapping up domain preparation and combining knowledge.",
+        "targets": {},
+        "assessments": [],
+        "mocks": [
+            {"title": "Week 10 — Mock #3", "target_week": 10, "duration": 60, "areas": ["Domain", "DSA"], "purpose": "Full mixed mock."}
+        ],
+        "milestones": [
+            {"title": "Full mixed mock", "target_week": 10, "description": "Complete a full mixed mock interview."}
+        ],
         "tasks": [
-            {"day_number": 1, "title": "Practice basic NumPy and Pandas filtering", "category": "Data Science", "estimated_minutes": 90, "description": "Write code to manipulate arrays and filter DataFrames."},
-            {"day_number": 2, "title": "Review missing value handling and merging in Pandas", "category": "Data Science", "estimated_minutes": 60, "description": "Practice fillna, dropna, groupby, and merge operations."},
-            {"day_number": 3, "title": "Explain Supervised vs Unsupervised learning", "category": "AI/ML", "estimated_minutes": 60, "description": "Understand classification vs regression and clustering."},
-            {"day_number": 4, "title": "Review evaluation metrics and Overfitting", "category": "AI/ML", "estimated_minutes": 60, "description": "Explain accuracy, precision, recall, F1 score, bias/variance tradeoff."},
-            {"day_number": 5, "title": "Answer 5 basic ML conceptual interview questions", "category": "Mock Interviews", "estimated_minutes": 45, "description": "Test your ability to concisely explain ML concepts to a non-expert."}
+            {"title": "Review ML Evaluation Metrics", "category": "AI/ML", "task_type": "LEARN", "estimated_minutes": 60},
+            {"title": "Conduct Mock Interview #3", "category": "Mock Interviews", "task_type": "MOCK_INTERVIEW", "estimated_minutes": 60}
         ]
     },
     {
         "week_number": 11,
-        "title": "Portfolio Projects & Explanations",
-        "description": "Prepare to defend your resume and articulate your technical decisions.",
+        "phase": "Phase 4 — Interview Mode",
+        "title": "Intensive Revision & Simulation",
+        "description": "Heavy practice, timed assessments, and mock interviews.",
+        "targets": {"Coding": 21, "SQL": 15, "CS": 40, "Assessments": 2, "Mock": 1},
+        "assessments": [
+            {"type": "Coding", "title": "Week 11 coding assessment #1"},
+            {"type": "Coding", "title": "Week 11 coding assessment #2"}
+        ],
+        "mocks": [
+            {"title": "Week 11 — Mocks #4-5", "target_week": 11, "duration": 45, "areas": ["Comprehensive"], "purpose": "Intensive mock practice."}
+        ],
+        "milestones": [
+            {"title": "Interview Mode begins", "target_week": 11, "description": "Transition to full interview simulation."}
+        ],
         "tasks": [
-            {"day_number": 1, "title": "Prepare a technical self-introduction", "category": "Projects", "estimated_minutes": 60, "description": "Draft a 90-second elevator pitch covering your education, skills, and top project."},
-            {"day_number": 2, "title": "Draft a 2-minute architectural explanation of a project", "category": "Projects", "estimated_minutes": 60, "description": "Explain the tech stack, data flow, and why you chose specific tools."},
-            {"day_number": 3, "title": "Document the database design of your project", "category": "Projects", "estimated_minutes": 45, "description": "Be ready to draw or explain your database schema, relationships, and queries."},
-            {"day_number": 4, "title": "Identify and explain your most complex bug", "category": "Projects", "estimated_minutes": 45, "description": "Prepare a STAR method response detailing a bug, your debugging process, and the fix."},
-            {"day_number": 5, "title": "Enhance a project README", "category": "Projects", "estimated_minutes": 60, "description": "Ensure at least one GitHub project has a stellar README with setup steps and architecture."}
+            {"title": "Take Week 11 coding assessment #1", "category": "Assessment", "task_type": "ASSESSMENT", "estimated_minutes": 60},
+            {"title": "Take Week 11 coding assessment #2", "category": "Assessment", "task_type": "ASSESSMENT", "estimated_minutes": 60},
+            {"title": "Conduct Mock Interviews #4-5", "category": "Mock Interviews", "task_type": "MOCK_INTERVIEW", "estimated_minutes": 90}
         ]
     },
     {
         "week_number": 12,
-        "title": "Final Revision & Mock Interviews",
-        "description": "Consolidate your knowledge and polish your interview performance.",
+        "phase": "Phase 4 — Interview Mode",
+        "title": "Final Polish & Interview Readiness",
+        "description": "Final readiness evaluation and mock gauntlet.",
+        "targets": {"Coding": 21, "SQL": 12, "CS": 40, "Mock": "3-4"},
+        "assessments": [
+            {"type": "Full", "title": "Week 12 final/full mock assessment"}
+        ],
+        "mocks": [
+            {"title": "Week 12 — Mocks #6-8", "target_week": 12, "duration": 60, "areas": ["All"], "purpose": "Final polish."}
+        ],
+        "milestones": [
+            {"title": "Final readiness assessment", "target_week": 12, "description": "Complete final readiness checklist and assessment."}
+        ],
         "tasks": [
-            {"day_number": 1, "title": "Revise weak topics in DSA (Trees/Graphs/DP)", "category": "Revision", "estimated_minutes": 90, "description": "Re-solve 3 problems you previously struggled with."},
-            {"day_number": 2, "title": "Revise weak topics in Core CS (OS/CN/SQL)", "category": "Revision", "estimated_minutes": 90, "description": "Review flashcards or summaries for theoretical subjects."},
-            {"day_number": 3, "title": "Practice answering behavioral questions (STAR method)", "category": "Mock Interviews", "estimated_minutes": 60, "description": "Prepare answers for leadership, conflict resolution, and failure questions."},
-            {"day_number": 4, "title": "Conduct a full 45-minute technical mock interview", "category": "Mock Interviews", "estimated_minutes": 60, "description": "Do a peer mock interview or record yourself solving a problem while talking out loud."},
-            {"day_number": 5, "title": "Final review of project defense and technical communication", "category": "Revision", "estimated_minutes": 60, "description": "Review your resume top-to-bottom and ensure you can explain every bullet point."}
+            {"title": "Take Week 12 final/full mock assessment", "category": "Assessment", "task_type": "ASSESSMENT", "estimated_minutes": 120},
+            {"title": "Conduct Mock Interviews #6-8", "category": "Mock Interviews", "task_type": "MOCK_INTERVIEW", "estimated_minutes": 180},
+            {"title": "Complete final readiness checklist", "category": "Revision", "task_type": "MILESTONE", "estimated_minutes": 60}
         ]
     }
 ]
