@@ -7,8 +7,15 @@ from pymongo.errors import DuplicateKeyError
 from app.api.deps import get_current_user
 from app.schemas.week import WeekCreate, WeekResponse
 from app.db.connection import db_client
+from app.services.roadmap import initialize_default_roadmap
 
 router = APIRouter()
+
+@router.post("/initialize", status_code=status.HTTP_200_OK)
+async def initialize_roadmap(current_user: dict = Depends(get_current_user)):
+    user_id = str(current_user["_id"])
+    await initialize_default_roadmap(user_id)
+    return {"status": "success", "message": "Roadmap initialized successfully."}
 
 def serialize_week(week: dict) -> dict:
     week["id"] = str(week.pop("_id"))

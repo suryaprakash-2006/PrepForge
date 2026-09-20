@@ -61,3 +61,44 @@ export const getCurrentUser = async (token) => {
     
     return await response.json();
 };
+
+export const getWeeks = async (token) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/weeks`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) throw new Error('Failed to fetch weeks');
+    return await response.json();
+};
+
+export const initializeRoadmap = async (token) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/weeks/initialize`, {
+        method: 'POST',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) throw new Error('Failed to initialize roadmap');
+    return await response.json();
+};
+
+export const getTasks = async (token, weekId) => {
+    const url = new URL(`${API_BASE_URL}/api/v1/tasks`);
+    if (weekId) {
+        url.searchParams.append('week_id', weekId);
+    }
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) throw new Error('Failed to fetch tasks');
+    return await response.json();
+};
+
+export const updateTask = async (token, taskId, data) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/tasks/${taskId}`, {
+        method: 'PATCH',
+        headers: getHeaders(token),
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error('Failed to update task');
+    return await response.json();
+};

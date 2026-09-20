@@ -6,6 +6,8 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import AppShell from './pages/AppShell'
+import Dashboard from './pages/Dashboard'
+import Roadmap from './pages/Roadmap'
 import './index.css'
 
 const Landing = () => {
@@ -75,7 +77,11 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/app" element={<ProtectedRoute><AppShell /></ProtectedRoute>} />
+          <Route path="/app" element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
+            <Route index element={<Navigate to="/app/dashboard" replace />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="roadmap" element={<Roadmap />} />
+          </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
