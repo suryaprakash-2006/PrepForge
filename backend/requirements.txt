@@ -1,0 +1,38 @@
+# ==============================================================
+# PrepForge — Backend Dependencies
+# Python 3.12 | FastAPI | Motor (async MongoDB) | Uvicorn
+# ==============================================================
+#
+# Why each dependency:
+#
+#   fastapi          — Web framework. Provides routing, dependency
+#                      injection, request/response validation.
+#
+#   uvicorn[standard] — ASGI server that runs FastAPI. The
+#                      [standard] extra adds uvloop (faster event
+#                      loop) and httptools (faster HTTP parsing).
+#                      Installs watchfiles for --reload support.
+#
+#   motor            — Official async MongoDB driver for Python.
+#                      Wraps pymongo in an async interface.
+#                      Required for non-blocking DB operations in
+#                      FastAPI's async request handlers.
+#                      motor 3.x works with pymongo 4.x and
+#                      Python 3.8+.
+#
+#   pydantic-settings — Loads and validates configuration from
+#                      environment variables and .env files.
+#                      Part of the Pydantic v2 ecosystem.
+#                      Replaces manual os.getenv() calls with
+#                      a typed, validated settings model.
+#
+# Dependencies NOT included in this milestone (added later):
+#   python-jose[cryptography]  — JWT (Phase 4: Authentication)
+#   passlib[bcrypt]            — Password hashing (Phase 4)
+#
+# ==============================================================
+
+fastapi==0.115.14
+uvicorn[standard]==0.34.0
+motor==3.7.1
+pydantic-settings==2.15.0
