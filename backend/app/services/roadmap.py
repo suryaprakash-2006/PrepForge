@@ -1,74 +1,36 @@
 from datetime import datetime, timezone
 from pymongo.errors import DuplicateKeyError
 from app.db.connection import db_client
-from app.data.curriculum import CURRICULUM, CURRICULUM_VERSION
+from app.data.curriculum import CURRICULUM
 
 async def initialize_default_roadmap(user_id: str):
     """
-    Seeds the default 12-week roadmap and tasks for a specific user.
-    Idempotent: Silently ignores if a week or task already exists.
-    Progress is preserved because existing tasks are never overwritten.
+    Initializes or migrates the user's roadmap.
+    Since curriculum is now static and shared, this mostly handles migrating
+    existing legacy task progress (from Phase 6A/6B) to the new `task_progress` model.
     """
     db = db_client.database
-    now = datetime.now(timezone.utc)
     
-    for week_data in CURRICULUM:
-        week_doc = {
-            "user_id": user_id,
-            "week_number": week_data["week_number"],
-            "phase": week_data.get("phase"),
-            "title": week_data["title"],
-            "description": week_data["description"],
-            "start_date": None,
-            "end_date": None,
-            "targets": week_data.get("targets", {}),
-            "assessments": week_data.get("assessments", []),
-            "mocks": week_data.get("mocks", []),
-            "milestones": week_data.get("milestones", []),
-            "created_at": now,
-            "updated_at": now
-        }
+    # 1. Fetch legacy tasks
+    legacy_tasks_cursor = db["tasks"].find({"user_id": user_id})
+    legacy_tasks = await legacy_tasks_cursor.to_list(length=None)
+    
+    if legacy_tasks:
+        for lt in legacy_tasks:
+            # Find the corresponding curriculum task by title
+            curr_task = next((t for w in CURRICULUM for t in w.get("tasks", []) if t["title"] == lt["title"]), None)
+            
+            if curr_task:
+                # Upsert into task_progress
+                await db["task_progress"].update_one(
+                    {"user_id": user_id, "task_id": curr_task["id"]},
+                    {"$set": {
+                        "completed": lt.get("completed", False),
+                        "completed_at": lt.get("completed_at")
+                    }},
+                    upsert=True
+                )
         
-        # Upsert or Insert week idempotently
-        try:
-            result = await db["weeks"].insert_one(week_doc)
-            week_id = str(result.inserted_id)
-        except DuplicateKeyError:
-            # Week already exists, fetch it to get the week_id
-            existing_week = await db["weeks"].find_one({
-                "user_id": user_id, 
-                "week_number": week_data["week_number"]
-            })
-            week_id = str(existing_week["_id"])
-            # In a real migration, we might want to update the week's phase/targets here,
-            # but to preserve idempotency and avoid destructive updates, we just get the id.
-            
-        # Initialize tasks for this week
-        for task_data in week_data.get("tasks", []):
-            # Check if task already exists (by title within the same week for the user)
-            existing_task = await db["tasks"].find_one({
-                "user_id": user_id,
-                "week_id": week_id,
-                "title": task_data["title"]
-            })
-            
-            if not existing_task:
-                task_doc = {
-                    "user_id": user_id,
-                    "week_id": week_id,
-                    "title": task_data["title"],
-                    "description": task_data.get("description"),
-                    "category": task_data.get("category"),
-                    "day_number": task_data.get("day_number"),
-                    "estimated_minutes": task_data.get("estimated_minutes"),
-                    "completed": False,
-                    "completed_at": None,
-                    "task_type": task_data.get("task_type"),
-                    "difficulty": task_data.get("difficulty"),
-                    "priority": task_data.get("priority"),
-                    "subtasks": task_data.get("subtasks", []),
-                    "created_at": now,
-                    "updated_at": now
-                }
-                await db["tasks"].insert_one(task_doc)
-
+        # Mark user as migrated if we wanted to (optional), but upsert is safe.
+    
+    # No more copying curriculum to db["weeks"] or db["tasks"]!

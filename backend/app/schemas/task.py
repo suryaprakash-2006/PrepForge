@@ -36,15 +36,15 @@ class TaskResponse(BaseModel):
     user_id: str
     week_id: str
     title: str
-    description: Optional[str]
-    category: Optional[str]
-    day_number: Optional[int]
-    estimated_minutes: Optional[int]
+    description: Optional[str] = None
+    category: Optional[str] = None
+    day_number: Optional[int] = None
+    estimated_minutes: Optional[int] = None
     completed: bool
     task_type: Optional[str] = None
     difficulty: Optional[str] = None
     priority: Optional[str] = None
     subtasks: Optional[List[Subtask]] = []
-    completed_at: Optional[datetime]
+    completed_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime

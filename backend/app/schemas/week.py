@@ -20,9 +20,9 @@ class WeekResponse(BaseModel):
     week_number: int
     phase: Optional[str] = None
     title: str
-    description: Optional[str]
-    start_date: Optional[datetime]
-    end_date: Optional[datetime]
+    description: Optional[str] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
     targets: Optional[Dict[str, Any]] = None
     assessments: Optional[List[Dict[str, Any]]] = None
     mocks: Optional[List[Dict[str, Any]]] = None

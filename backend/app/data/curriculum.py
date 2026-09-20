@@ -25,6 +25,9 @@ SQL_SUBTASKS = [
     {"title": "Verify output", "completed": False}
 ]
 
+# Helper function to auto-assign IDs if needed, but we'll do it explicitly
+# to avoid runtime modifications of the static curriculum structure.
+
 CURRICULUM = [
     {
         "week_number": 1,
@@ -239,3 +242,9 @@ CURRICULUM = [
         ]
     }
 ]
+
+for w_idx, week in enumerate(CURRICULUM):
+    week["id"] = f"week_{week['week_number']}"
+    for t_idx, task in enumerate(week.get("tasks", [])):
+        task["id"] = f"task_{week['week_number']}_{t_idx+1}"
+        task["week_id"] = week["id"]
