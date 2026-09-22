@@ -84,13 +84,14 @@ const Roadmap = () => {
         return map;
     }, [allTasks]);
 
-    const categories = useMemo(() => {
-        const cats = new Set(allTasks.map(t => t.category).filter(Boolean));
-        return ['All', ...Array.from(cats).sort()];
-    }, [allTasks]);
-
     // Current week tasks
     const currentWeekTasks = selectedWeek ? (tasksByWeek[selectedWeek.id] || []) : [];
+
+    const categories = useMemo(() => {
+        const sourceTasks = selectedWeek ? currentWeekTasks : allTasks;
+        const cats = new Set(sourceTasks.map(t => t.category).filter(Boolean));
+        return ['All', ...Array.from(cats).sort()];
+    }, [currentWeekTasks, selectedWeek, allTasks]);
     
     // Filtered tasks for selected week
     const filteredTasks = useMemo(() => {

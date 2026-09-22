@@ -6,10 +6,23 @@ CURRICULUM = [
         "week_number": 1,
         "phase": "Phase 1 \u2014 Foundation",
         "title": "Baseline Assessment & Core Fundamentals",
+        "description": "Establish a baseline evaluation and build core programming fundamentals across Python, C++, STL, and basic SQL.",
         "targets": {
             "coding": 14,
             "sql": 12
         },
+        "assessments": [
+            {
+                "type": "Baseline",
+                "topics": [
+                    "General Programming",
+                    "Basic Logic"
+                ],
+                "title": "Week 1 baseline coding evaluation"
+            }
+        ],
+        "mocks": [],
+        "milestones": [],
         "days": [
             {
                 "id": "week_1_day_1",
@@ -549,10 +562,14 @@ CURRICULUM = [
         "week_number": 2,
         "phase": "Phase 1 \u2014 Foundation",
         "title": "Hashing & Joins",
+        "description": "Master hash maps, two pointers, prefix sums, and relational database joins and constraints.",
         "targets": {
             "coding": 14,
             "sql": 12
         },
+        "assessments": [],
+        "mocks": [],
+        "milestones": [],
         "days": [
             {
                 "id": "week_2_day_1",
@@ -1092,11 +1109,32 @@ CURRICULUM = [
         "week_number": 3,
         "phase": "Phase 1 \u2014 Foundation",
         "title": "Sliding Window & Foundational Concepts",
+        "description": "Advanced array techniques, linked structures, subqueries, normalization, and OOP paradigms.",
         "targets": {
             "coding": 14,
             "sql": 12,
             "cs": 30
         },
+        "assessments": [
+            {
+                "type": "Quiz",
+                "title": "Week 3 Quiz",
+                "topics": [
+                    "Hashing",
+                    "Joins",
+                    "OOP",
+                    "DBMS"
+                ]
+            }
+        ],
+        "mocks": [],
+        "milestones": [
+            {
+                "title": "Foundation completed",
+                "target_week": 3,
+                "description": "Completed foundational data structures and core CS topics."
+            }
+        ],
         "days": [
             {
                 "id": "week_3_day_1",
@@ -1656,11 +1694,35 @@ CURRICULUM = [
         "week_number": 4,
         "phase": "Phase 2 \u2014 Core Interview Preparation",
         "title": "Data Structures Consolidation & First Mock",
+        "description": "Consolidate linear data structures, master CTEs, REST APIs, and conduct technical Mock Interview #1.",
         "targets": {
             "coding": 14,
             "sql": 12,
-            "cs": 35
+            "cs": 35,
+            "mock": 1
         },
+        "assessments": [],
+        "mocks": [
+            {
+                "title": "Week 4 \u2014 Mock #1",
+                "target_week": 4,
+                "duration": 45,
+                "areas": [
+                    "Arrays",
+                    "Strings",
+                    "SQL",
+                    "OOP"
+                ],
+                "purpose": "First technical mock interview exposure."
+            }
+        ],
+        "milestones": [
+            {
+                "title": "First mock interview",
+                "target_week": 4,
+                "description": "Complete your first live technical mock interview."
+            }
+        ],
         "days": [
             {
                 "id": "week_4_day_1",
@@ -2190,11 +2252,26 @@ CURRICULUM = [
         "week_number": 5,
         "phase": "Phase 2 \u2014 Core Interview Preparation",
         "title": "Trees & Binary Search Trees",
+        "description": "Master hierarchical trees, BST traversals, SQL window functions, DBMS indexing, and OS scheduling.",
         "targets": {
             "coding": 14,
             "sql": 12,
             "cs": 35
         },
+        "assessments": [
+            {
+                "type": "Quiz",
+                "title": "Week 5 Quiz",
+                "topics": [
+                    "Trees",
+                    "BST",
+                    "Window Functions",
+                    "OS Scheduling"
+                ]
+            }
+        ],
+        "mocks": [],
+        "milestones": [],
         "days": [
             {
                 "id": "week_5_day_1",
@@ -2714,11 +2791,29 @@ CURRICULUM = [
         "week_number": 6,
         "phase": "Phase 2 \u2014 Core Interview Preparation",
         "title": "Heap, Priority Queue & Graphs",
+        "description": "Deep dive into Priority Queues, Graph BFS/DFS representations, OS memory/deadlocks, Networking, and Mock #2.",
         "targets": {
             "coding": 14,
             "sql": 12,
-            "cs": 40
+            "cs": 40,
+            "mock": 1
         },
+        "assessments": [],
+        "mocks": [
+            {
+                "title": "Week 6 \u2014 Mock #2",
+                "target_week": 6,
+                "duration": 45,
+                "areas": [
+                    "Trees",
+                    "Heaps",
+                    "Graphs",
+                    "OS"
+                ],
+                "purpose": "Second technical mock interview."
+            }
+        ],
+        "milestones": [],
         "days": [
             {
                 "id": "week_6_day_1",
@@ -3248,11 +3343,32 @@ CURRICULUM = [
         "week_number": 7,
         "phase": "Phase 2 \u2014 Core Interview Preparation",
         "title": "Recursion, Backtracking & Final Core CS",
+        "description": "Exhaustive recursion, backtracking, computer architecture, networking protocols, Git, and Core CS consolidation.",
         "targets": {
             "coding": 14,
             "sql": 12,
             "cs": 40
         },
+        "assessments": [
+            {
+                "type": "Quiz",
+                "title": "Week 7 Quiz",
+                "topics": [
+                    "Recursion",
+                    "Backtracking",
+                    "Architecture",
+                    "Networks"
+                ]
+            }
+        ],
+        "mocks": [],
+        "milestones": [
+            {
+                "title": "Core CS coverage completed",
+                "target_week": 7,
+                "description": "Finished OOP, OS, CN, DBMS, and Computer Architecture."
+            }
+        ],
         "days": [
             {
                 "id": "week_7_day_1",
@@ -3812,11 +3928,15 @@ CURRICULUM = [
         "week_number": 8,
         "phase": "Phase 3 \u2014 Domain Preparation",
         "title": "Greedy & Data Science Foundations",
+        "description": "Transition to Greedy algorithms, introductory Dynamic Programming, NumPy arrays, Pandas DataFrames, and EDA.",
         "targets": {
             "coding": 14,
             "sql": 15,
             "cs": 20
         },
+        "assessments": [],
+        "mocks": [],
+        "milestones": [],
         "days": [
             {
                 "id": "week_8_day_1",
@@ -4336,10 +4456,24 @@ CURRICULUM = [
         "week_number": 9,
         "phase": "Phase 3 \u2014 Domain Preparation",
         "title": "ML Fundamentals & Algorithms",
+        "description": "Core machine learning algorithms, model evaluation, validation techniques, and BattWin-Verify deep dive.",
         "targets": {
             "coding": 12,
             "sql": 12
         },
+        "assessments": [
+            {
+                "type": "Quiz",
+                "title": "Week 9 Quiz",
+                "topics": [
+                    "ML Classification",
+                    "Regression",
+                    "Evaluation Metrics"
+                ]
+            }
+        ],
+        "mocks": [],
+        "milestones": [],
         "days": [
             {
                 "id": "week_9_day_1",
@@ -4915,10 +5049,35 @@ CURRICULUM = [
         "week_number": 10,
         "phase": "Phase 3 \u2014 Domain Preparation",
         "title": "Advanced ML & Full Integration",
+        "description": "Advanced ML ensembles, unsupervised clustering, system design fundamentals, and comprehensive Mock #3.",
         "targets": {
             "coding": 10,
-            "sql": 10
+            "sql": 10,
+            "mock": 1
         },
+        "assessments": [],
+        "mocks": [
+            {
+                "title": "Week 10 \u2014 Mock #3",
+                "target_week": 10,
+                "duration": 60,
+                "areas": [
+                    "DSA",
+                    "SQL",
+                    "Core CS",
+                    "ML/Domain",
+                    "Project"
+                ],
+                "purpose": "Full integration mock interview."
+            }
+        ],
+        "milestones": [
+            {
+                "title": "Full mixed mock",
+                "target_week": 10,
+                "description": "Complete full multi-topic technical mock interview."
+            }
+        ],
         "days": [
             {
                 "id": "week_10_day_1",
@@ -5484,11 +5643,42 @@ CURRICULUM = [
         "week_number": 11,
         "phase": "Phase 4 \u2014 Interview Mode",
         "title": "Intensive Revision & Simulation",
+        "description": "High-intensity mixed revision, timed coding assessments, ATS resume reviews, and simulation mocks.",
         "targets": {
             "coding": 21,
             "sql": 15,
-            "cs": 40
+            "cs": 40,
+            "assessments": 2,
+            "mock": 1
         },
+        "assessments": [
+            {
+                "type": "Coding",
+                "title": "Timed Coding Assessment #1"
+            },
+            {
+                "type": "Coding",
+                "title": "Timed Coding Assessment #2"
+            }
+        ],
+        "mocks": [
+            {
+                "title": "Week 11 \u2014 Comprehensive Mock",
+                "target_week": 11,
+                "duration": 60,
+                "areas": [
+                    "Comprehensive"
+                ],
+                "purpose": "Intensive simulation mock."
+            }
+        ],
+        "milestones": [
+            {
+                "title": "Interview Mode begins",
+                "target_week": 11,
+                "description": "Transition to full interview simulation mode."
+            }
+        ],
         "days": [
             {
                 "id": "week_11_day_1",
@@ -6150,11 +6340,37 @@ CURRICULUM = [
         "week_number": 12,
         "phase": "Phase 4 \u2014 Interview Mode",
         "title": "Final Polish & Interview Readiness",
+        "description": "Final readiness evaluation, complete portfolio polishing, communication practice, and final mock gauntlet.",
         "targets": {
             "coding": 21,
             "sql": 12,
-            "cs": 40
+            "cs": 40,
+            "mock": "3-4"
         },
+        "assessments": [
+            {
+                "type": "Full",
+                "title": "Final Readiness Assessment"
+            }
+        ],
+        "mocks": [
+            {
+                "title": "Week 12 \u2014 Final Internship Simulation Gauntlet",
+                "target_week": 12,
+                "duration": 180,
+                "areas": [
+                    "All"
+                ],
+                "purpose": "Final interview readiness simulation."
+            }
+        ],
+        "milestones": [
+            {
+                "title": "Final readiness completed",
+                "target_week": 12,
+                "description": "Complete final readiness checklist and interview preparation."
+            }
+        ],
         "days": [
             {
                 "id": "week_12_day_1",

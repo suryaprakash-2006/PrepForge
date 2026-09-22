@@ -57,7 +57,13 @@ weeks_data = [
         "week_number": 1,
         "phase": "Phase 1 — Foundation",
         "title": "Baseline Assessment & Core Fundamentals",
+        "description": "Establish a baseline evaluation and build core programming fundamentals across Python, C++, STL, and basic SQL.",
         "targets": {"coding": 14, "sql": 12},
+        "assessments": [
+            {"type": "Baseline", "topics": ["General Programming", "Basic Logic"], "title": "Week 1 baseline coding evaluation"}
+        ],
+        "mocks": [],
+        "milestones": [],
         "days_populate": {
             1: [make_task("Python fundamentals", "Python", "LEARN", 60), make_task("Solve 2 Arrays coding problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
             2: [make_task("C++ fundamentals", "C++", "LEARN", 60), make_task("Solve 2 Arrays coding problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
@@ -72,7 +78,11 @@ weeks_data = [
         "week_number": 2,
         "phase": "Phase 1 — Foundation",
         "title": "Hashing & Joins",
+        "description": "Master hash maps, two pointers, prefix sums, and relational database joins and constraints.",
         "targets": {"coding": 14, "sql": 12},
+        "assessments": [],
+        "mocks": [],
+        "milestones": [],
         "days_populate": {
             1: [make_task("Python dict, Python set", "Python", "LEARN", 45), make_task("C++ unordered_map, C++ set", "C++", "LEARN", 45), make_task("Solve 2 Hashing problems", "DSA", "CODING", 60, DSA_SUBTASKS)],
             2: [make_task("vector/STL revision", "C++", "LEARN", 30), make_task("Solve 3 Hashing problems", "DSA", "CODING", 120, DSA_SUBTASKS)],
@@ -87,7 +97,15 @@ weeks_data = [
         "week_number": 3,
         "phase": "Phase 1 — Foundation",
         "title": "Sliding Window & Foundational Concepts",
+        "description": "Advanced array techniques, linked structures, subqueries, normalization, and OOP paradigms.",
         "targets": {"coding": 14, "sql": 12, "cs": 30},
+        "assessments": [
+            {"type": "Quiz", "title": "Week 3 Quiz", "topics": ["Hashing", "Joins", "OOP", "DBMS"]}
+        ],
+        "mocks": [],
+        "milestones": [
+            {"title": "Foundation completed", "target_week": 3, "description": "Completed foundational data structures and core CS topics."}
+        ],
         "days_populate": {
             1: [make_task("Sliding Window", "DSA", "LEARN", 60), make_task("Solve 3 Sliding Window problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
             2: [make_task("Binary Search", "DSA", "LEARN", 60), make_task("Solve 3 Binary Search problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
@@ -102,7 +120,15 @@ weeks_data = [
         "week_number": 4,
         "phase": "Phase 2 — Core Interview Preparation",
         "title": "Data Structures Consolidation & First Mock",
-        "targets": {"coding": 14, "sql": 12, "cs": 35},
+        "description": "Consolidate linear data structures, master CTEs, REST APIs, and conduct technical Mock Interview #1.",
+        "targets": {"coding": 14, "sql": 12, "cs": 35, "mock": 1},
+        "assessments": [],
+        "mocks": [
+            {"title": "Week 4 — Mock #1", "target_week": 4, "duration": 45, "areas": ["Arrays", "Strings", "SQL", "OOP"], "purpose": "First technical mock interview exposure."}
+        ],
+        "milestones": [
+            {"title": "First mock interview", "target_week": 4, "description": "Complete your first live technical mock interview."}
+        ],
         "days_populate": {
             1: [make_task("Linked List consolidation", "DSA", "LEARN", 60), make_task("Solve 3 Linked List problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
             2: [make_task("Stack, Queue review", "DSA", "LEARN", 45), make_task("Solve 3 Stack/Queue problems", "DSA", "CODING", 105, DSA_SUBTASKS)],
@@ -117,7 +143,13 @@ weeks_data = [
         "week_number": 5,
         "phase": "Phase 2 — Core Interview Preparation",
         "title": "Trees & Binary Search Trees",
+        "description": "Master hierarchical trees, BST traversals, SQL window functions, DBMS indexing, and OS scheduling.",
         "targets": {"coding": 14, "sql": 12, "cs": 35},
+        "assessments": [
+            {"type": "Quiz", "title": "Week 5 Quiz", "topics": ["Trees", "BST", "Window Functions", "OS Scheduling"]}
+        ],
+        "mocks": [],
+        "milestones": [],
         "days_populate": {
             1: [make_task("Binary Trees, Tree traversals (preorder, inorder, postorder, level order)", "DSA", "LEARN", 60), make_task("Solve 3 Tree problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
             2: [make_task("Tree height, Tree diameter, LCA", "DSA", "LEARN", 60), make_task("Solve 3 Tree path problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
@@ -132,7 +164,13 @@ weeks_data = [
         "week_number": 6,
         "phase": "Phase 2 — Core Interview Preparation",
         "title": "Heap, Priority Queue & Graphs",
-        "targets": {"coding": 14, "sql": 12, "cs": 40},
+        "description": "Deep dive into Priority Queues, Graph BFS/DFS representations, OS memory/deadlocks, Networking, and Mock #2.",
+        "targets": {"coding": 14, "sql": 12, "cs": 40, "mock": 1},
+        "assessments": [],
+        "mocks": [
+            {"title": "Week 6 — Mock #2", "target_week": 6, "duration": 45, "areas": ["Trees", "Heaps", "Graphs", "OS"], "purpose": "Second technical mock interview."}
+        ],
+        "milestones": [],
         "days_populate": {
             1: [make_task("Heap, Heap operations, Priority Queue", "DSA", "LEARN", 60), make_task("Solve 3 Heap problems (Kth largest, Median, K-closest)", "DSA", "CODING", 90, DSA_SUBTASKS)],
             2: [make_task("Graph representations (Adjacency matrix, list)", "DSA", "LEARN", 45), make_task("BFS, DFS", "DSA", "LEARN", 45), make_task("Solve 2 Graph problem solving", "DSA", "CODING", 60, DSA_SUBTASKS)],
@@ -147,7 +185,15 @@ weeks_data = [
         "week_number": 7,
         "phase": "Phase 2 — Core Interview Preparation",
         "title": "Recursion, Backtracking & Final Core CS",
+        "description": "Exhaustive recursion, backtracking, computer architecture, networking protocols, Git, and Core CS consolidation.",
         "targets": {"coding": 14, "sql": 12, "cs": 40},
+        "assessments": [
+            {"type": "Quiz", "title": "Week 7 Quiz", "topics": ["Recursion", "Backtracking", "Architecture", "Networks"]}
+        ],
+        "mocks": [],
+        "milestones": [
+            {"title": "Core CS coverage completed", "target_week": 7, "description": "Finished OOP, OS, CN, DBMS, and Computer Architecture."}
+        ],
         "days_populate": {
             1: [make_task("Recursion, Recursive thinking", "DSA", "LEARN", 60), make_task("Solve 3 Recursion problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
             2: [make_task("Backtracking, Permutations, Combinations", "DSA", "LEARN", 60), make_task("Solve 3 Backtracking problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
@@ -162,7 +208,11 @@ weeks_data = [
         "week_number": 8,
         "phase": "Phase 3 — Domain Preparation",
         "title": "Greedy & Data Science Foundations",
+        "description": "Transition to Greedy algorithms, introductory Dynamic Programming, NumPy arrays, Pandas DataFrames, and EDA.",
         "targets": {"coding": 14, "sql": 15, "cs": 20},
+        "assessments": [],
+        "mocks": [],
+        "milestones": [],
         "days_populate": {
             1: [make_task("Greedy algorithms, Greedy problem solving", "DSA", "LEARN", 60), make_task("Solve 3 Greedy algorithms", "DSA", "CODING", 90, DSA_SUBTASKS)],
             2: [make_task("Dynamic Programming introduction", "DSA", "LEARN", 60), make_task("Solve 3 DP/Greedy problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
@@ -177,7 +227,13 @@ weeks_data = [
         "week_number": 9,
         "phase": "Phase 3 — Domain Preparation",
         "title": "ML Fundamentals & Algorithms",
+        "description": "Core machine learning algorithms, model evaluation, validation techniques, and BattWin-Verify deep dive.",
         "targets": {"coding": 12, "sql": 12},
+        "assessments": [
+            {"type": "Quiz", "title": "Week 9 Quiz", "topics": ["ML Classification", "Regression", "Evaluation Metrics"]}
+        ],
+        "mocks": [],
+        "milestones": [],
         "days_populate": {
             1: [make_task("Supervised Learning, Unsupervised Learning", "Machine Learning", "LEARN", 60), make_task("Solve 2 DSA problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
             2: [make_task("Train/Validation/Test, Cross-validation, Overfitting, Underfitting", "Machine Learning", "LEARN", 60), make_task("Solve 2 DSA problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
@@ -192,7 +248,15 @@ weeks_data = [
         "week_number": 10,
         "phase": "Phase 3 — Domain Preparation",
         "title": "Advanced ML & Full Integration",
-        "targets": {"coding": 10, "sql": 10}, # Added arbitrary for 10
+        "description": "Advanced ML ensembles, unsupervised clustering, system design fundamentals, and comprehensive Mock #3.",
+        "targets": {"coding": 10, "sql": 10, "mock": 1},
+        "assessments": [],
+        "mocks": [
+            {"title": "Week 10 — Mock #3", "target_week": 10, "duration": 60, "areas": ["DSA", "SQL", "Core CS", "ML/Domain", "Project"], "purpose": "Full integration mock interview."}
+        ],
+        "milestones": [
+            {"title": "Full mixed mock", "target_week": 10, "description": "Complete full multi-topic technical mock interview."}
+        ],
         "days_populate": {
             1: [make_task("Gradient Boosting, XGBoost", "Machine Learning", "LEARN", 90), make_task("Solve 2 DSA problems", "DSA", "CODING", 60, DSA_SUBTASKS)],
             2: [make_task("K-Means, PCA", "Machine Learning", "LEARN", 90), make_task("Solve 2 DSA problems", "DSA", "CODING", 60, DSA_SUBTASKS)],
@@ -207,7 +271,18 @@ weeks_data = [
         "week_number": 11,
         "phase": "Phase 4 — Interview Mode",
         "title": "Intensive Revision & Simulation",
-        "targets": {"coding": 21, "sql": 15, "cs": 40},
+        "description": "High-intensity mixed revision, timed coding assessments, ATS resume reviews, and simulation mocks.",
+        "targets": {"coding": 21, "sql": 15, "cs": 40, "assessments": 2, "mock": 1},
+        "assessments": [
+            {"type": "Coding", "title": "Timed Coding Assessment #1"},
+            {"type": "Coding", "title": "Timed Coding Assessment #2"}
+        ],
+        "mocks": [
+            {"title": "Week 11 — Comprehensive Mock", "target_week": 11, "duration": 60, "areas": ["Comprehensive"], "purpose": "Intensive simulation mock."}
+        ],
+        "milestones": [
+            {"title": "Interview Mode begins", "target_week": 11, "description": "Transition to full interview simulation mode."}
+        ],
         "days_populate": {
             1: [make_task("Mixed DSA revision", "DSA", "REVISION", 60), make_task("Solve 3 coding problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
             2: [make_task("Weak DSA topics revision", "DSA", "REVISION", 60), make_task("Solve 3 coding problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
@@ -222,7 +297,17 @@ weeks_data = [
         "week_number": 12,
         "phase": "Phase 4 — Interview Mode",
         "title": "Final Polish & Interview Readiness",
-        "targets": {"coding": 21, "sql": 12, "cs": 40},
+        "description": "Final readiness evaluation, complete portfolio polishing, communication practice, and final mock gauntlet.",
+        "targets": {"coding": 21, "sql": 12, "cs": 40, "mock": "3-4"},
+        "assessments": [
+            {"type": "Full", "title": "Final Readiness Assessment"}
+        ],
+        "mocks": [
+            {"title": "Week 12 — Final Internship Simulation Gauntlet", "target_week": 12, "duration": 180, "areas": ["All"], "purpose": "Final interview readiness simulation."}
+        ],
+        "milestones": [
+            {"title": "Final readiness completed", "target_week": 12, "description": "Complete final readiness checklist and interview preparation."}
+        ],
         "days_populate": {
             1: [make_task("Python revision, C++ revision", "CS", "REVISION", 60), make_task("Solve 3 coding problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
             2: [make_task("DSA revision", "DSA", "REVISION", 60), make_task("Solve 3 coding problems", "DSA", "CODING", 90, DSA_SUBTASKS)],
@@ -243,12 +328,13 @@ for w in weeks_data:
         "week_number": w["week_number"],
         "phase": w["phase"],
         "title": w["title"],
+        "description": w["description"],
         "targets": w["targets"],
+        "assessments": w.get("assessments", []),
+        "mocks": w.get("mocks", []),
+        "milestones": w.get("milestones", []),
         "days": get_days(week_id, w["week_number"])
     }
-    
-    # Optional fields from prompt
-    # I won't explicitly add empty assessments/mocks unless needed, but schemas can handle missing.
     
     task_idx = 1
     for day_num in range(1, 8):
@@ -263,8 +349,14 @@ for w in weeks_data:
             
     curriculum.append(w_out)
 
-with open("backend/app/data/curriculum.py", "w") as f:
+json_str = json.dumps(curriculum, indent=4)
+# Fix python boolean & None literals
+python_str = json_str.replace(": false", ": False").replace(": true", ": True").replace(": null", ": None")
+
+with open("backend/app/data/curriculum.py", "w", encoding="utf-8") as f:
     f.write('CURRICULUM_VERSION = "planner-2026-09-v2"\n\n')
     f.write('CURRICULUM = ')
-    f.write(json.dumps(curriculum, indent=4))
+    f.write(python_str)
     f.write('\n')
+
+print("Successfully generated backend/app/data/curriculum.py")
