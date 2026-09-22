@@ -21,6 +21,7 @@ class TaskCreate(BaseModel):
     subtasks: Optional[List[Subtask]] = []
 
 class TaskUpdate(BaseModel):
+    model_config = {"extra": "forbid"}
     title: Optional[str] = Field(None, min_length=1, max_length=200)
     description: Optional[str] = None
     category: Optional[str] = None

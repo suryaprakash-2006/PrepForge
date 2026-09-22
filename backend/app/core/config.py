@@ -52,9 +52,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
     model_config = SettingsConfigDict(
-        # Load from backend/.env when running from the backend/ directory.
-        # If the file does not exist, env vars still work — no error raised.
-        env_file=".env",
+        # Load from .env or backend/.env
+        env_file=(".env", "backend/.env"),
         env_file_encoding="utf-8",
         # Do not crash if extra env vars are present in the .env file.
         extra="ignore",
