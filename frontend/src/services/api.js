@@ -102,3 +102,12 @@ export const updateTask = async (token, taskId, data) => {
     if (!response.ok) throw new Error('Failed to update task');
     return await response.json();
 };
+
+export const getDashboard = async (token) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/dashboard`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) throw new Error('Failed to fetch dashboard data');
+    return await response.json();
+};

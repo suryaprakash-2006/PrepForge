@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getWeeks, initializeRoadmap, getTasks, updateTask } from '../services/api';
 
 const Roadmap = () => {
+    const location = useLocation();
     const [weeks, setWeeks] = useState([]);
     const [allTasks, setAllTasks] = useState([]);
     const [loadingData, setLoadingData] = useState(true);
@@ -27,6 +29,10 @@ const Roadmap = () => {
             ]);
             setWeeks(weeksData);
             setAllTasks(tasksData);
+            if (location.state?.weekNumber) {
+                const target = weeksData.find(w => w.week_number === location.state.weekNumber);
+                if (target) setSelectedWeek(target);
+            }
         } catch (err) {
             setError(err.message || 'Failed to load roadmap data');
         } finally {
