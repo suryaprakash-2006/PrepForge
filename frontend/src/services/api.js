@@ -169,3 +169,29 @@ export const deleteWeakness = async (token, id) => {
     if (!response.ok) throw new Error('Failed to delete weakness');
     return true;
 };
+
+export const getWeeklyReview = async (token, weekNumber) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/weekly-reviews/${weekNumber}`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to fetch weekly review');
+    }
+    return await response.json();
+};
+
+export const saveWeeklyReview = async (token, weekNumber, data) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/weekly-reviews/${weekNumber}`, {
+        method: 'PUT',
+        headers: getHeaders(token),
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to save weekly review');
+    }
+    return await response.json();
+};
+

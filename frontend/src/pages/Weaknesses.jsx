@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getWeaknesses, createWeakness, updateWeakness, deleteWeakness } from '../services/api';
+
 
 const PRIORITY_COLORS = {
     CRITICAL: { bg: '#fee2e2', text: '#991b1b', border: '#f87171' },
@@ -15,7 +17,9 @@ const STATUS_COLORS = {
 };
 
 const Weaknesses = () => {
+    const navigate = useNavigate();
     const [weaknesses, setWeaknesses] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [actionLoading, setActionLoading] = useState(false);
@@ -560,18 +564,21 @@ const Weaknesses = () => {
                 </div>
             )}
 
-            {/* Weekly Review Section Placeholder */}
+            {/* Weekly Review Section */}
             <div style={{ padding: '20px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '10px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                     <div>
-                        <strong style={{ fontSize: '15px', color: '#1e293b' }}>Weekly Review Engine</strong>
+                        <strong style={{ fontSize: '15px', color: '#1e293b' }}>Weekly Review & Retrospective</strong>
                         <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: '#64748b' }}>
-                            Structured synthesis of weekly target completion, pattern analysis, confidence metrics, and carry-forward topics.
+                            Synthesize weekly target completion, review top mistakes, and set your action plan.
                         </p>
                     </div>
-                    <span style={{ fontSize: '12px', padding: '4px 10px', backgroundColor: '#e2e8f0', borderRadius: '12px', color: '#475569', fontWeight: 'bold' }}>
-                        Coming in Weekly Review Milestone
-                    </span>
+                    <button
+                        onClick={() => navigate('/app/weekly-review')}
+                        style={{ padding: '8px 16px', backgroundColor: '#0066cc', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
+                    >
+                        Open Weekly Review →
+                    </button>
                 </div>
             </div>
         </div>
@@ -579,3 +586,4 @@ const Weaknesses = () => {
 };
 
 export default Weaknesses;
+

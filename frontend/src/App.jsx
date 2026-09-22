@@ -9,7 +9,9 @@ import AppShell from './pages/AppShell'
 import Dashboard from './pages/Dashboard'
 import Roadmap from './pages/Roadmap'
 import Weaknesses from './pages/Weaknesses'
+import WeeklyReview from './pages/WeeklyReview'
 import './index.css'
+
 
 const Landing = () => {
   const [healthInfo, setHealthInfo] = useState(null)
@@ -83,7 +85,9 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="roadmap" element={<Roadmap />} />
             <Route path="weaknesses" element={<Weaknesses />} />
+            <Route path="weekly-review" element={<WeeklyReview />} />
           </Route>
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

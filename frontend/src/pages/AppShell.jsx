@@ -29,6 +29,12 @@ const AppShell = () => {
                     >
                         Weaknesses
                     </Link>
+                    <Link 
+                        to="/app/weekly-review" 
+                        style={{ color: location.pathname === '/app/weekly-review' ? '#0066cc' : '#555', textDecoration: 'none', fontWeight: location.pathname === '/app/weekly-review' ? 'bold' : 'normal' }}
+                    >
+                        Weekly Review
+                    </Link>
                     <button 
                         onClick={logout}
                         style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', marginLeft: '10px' }}

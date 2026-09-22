@@ -71,6 +71,7 @@ class _DatabaseClient:
         await self._database["weaknesses"].create_index([("user_id", 1), ("status", 1)])
         await self._database["weaknesses"].create_index([("user_id", 1), ("priority", 1)])
         await self._database["weaknesses"].create_index([("user_id", 1), ("retry_date", 1)])
+        await self._database["weekly_reviews"].create_index([("user_id", 1), ("week_number", 1)], unique=True)
         
         logger.info(
             "MongoDB connected — database: '%s'", settings.DATABASE_NAME

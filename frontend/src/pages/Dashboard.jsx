@@ -200,7 +200,14 @@ const Dashboard = () => {
                     >
                         Review Weak Areas
                     </button>
+                    <button
+                        onClick={() => navigate('/app/weekly-review', { state: { weekNumber: current_week.week_number } })}
+                        style={{ padding: '8px 16px', backgroundColor: '#ffffff', color: '#0066cc', border: '1px solid #0066cc', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
+                    >
+                        Weekly Review
+                    </button>
                 </div>
+
             </div>
         </div>
     );
