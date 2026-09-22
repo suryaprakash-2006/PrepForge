@@ -23,6 +23,12 @@ const AppShell = () => {
                     >
                         Roadmap
                     </Link>
+                    <Link 
+                        to="/app/weaknesses" 
+                        style={{ color: location.pathname === '/app/weaknesses' ? '#0066cc' : '#555', textDecoration: 'none', fontWeight: location.pathname === '/app/weaknesses' ? 'bold' : 'normal' }}
+                    >
+                        Weaknesses
+                    </Link>
                     <button 
                         onClick={logout}
                         style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', marginLeft: '10px' }}

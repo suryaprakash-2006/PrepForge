@@ -8,6 +8,7 @@ import Register from './pages/Register'
 import AppShell from './pages/AppShell'
 import Dashboard from './pages/Dashboard'
 import Roadmap from './pages/Roadmap'
+import Weaknesses from './pages/Weaknesses'
 import './index.css'
 
 const Landing = () => {
@@ -81,6 +82,7 @@ function App() {
             <Route index element={<Navigate to="/app/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="roadmap" element={<Roadmap />} />
+            <Route path="weaknesses" element={<Weaknesses />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

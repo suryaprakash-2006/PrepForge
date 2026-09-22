@@ -68,6 +68,9 @@ class _DatabaseClient:
         await self._database["tasks"].create_index([("user_id", 1), ("week_id", 1)])
         await self._database["tasks"].create_index([("user_id", 1), ("completed", 1)])
         await self._database["task_progress"].create_index([("user_id", 1), ("task_id", 1)], unique=True)
+        await self._database["weaknesses"].create_index([("user_id", 1), ("status", 1)])
+        await self._database["weaknesses"].create_index([("user_id", 1), ("priority", 1)])
+        await self._database["weaknesses"].create_index([("user_id", 1), ("retry_date", 1)])
         
         logger.info(
             "MongoDB connected — database: '%s'", settings.DATABASE_NAME

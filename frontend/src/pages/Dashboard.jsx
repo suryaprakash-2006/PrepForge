@@ -195,11 +195,10 @@ const Dashboard = () => {
                         Open Full Roadmap
                     </button>
                     <button
-                        disabled
-                        title="Weakness management module coming in next milestone"
-                        style={{ padding: '8px 16px', backgroundColor: '#e2e8f0', color: '#94a3b8', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'not-allowed', fontSize: '14px' }}
+                        onClick={() => navigate('/app/weaknesses')}
+                        style={{ padding: '8px 16px', backgroundColor: '#ffffff', color: '#0066cc', border: '1px solid #0066cc', borderRadius: '4px', cursor: 'pointer', fontSize: '14px', fontWeight: '500' }}
                     >
-                        Review Weak Areas (Coming soon)
+                        Review Weak Areas
                     </button>
                 </div>
             </div>

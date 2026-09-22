@@ -111,3 +111,61 @@ export const getDashboard = async (token) => {
     if (!response.ok) throw new Error('Failed to fetch dashboard data');
     return await response.json();
 };
+
+export const getWeaknesses = async (token, params = {}) => {
+    const url = new URL(`${API_BASE_URL}/api/v1/weaknesses`);
+    if (params.status) url.searchParams.append('status', params.status);
+    if (params.priority) url.searchParams.append('priority', params.priority);
+    if (params.topic) url.searchParams.append('topic', params.topic);
+    
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) throw new Error('Failed to fetch weaknesses');
+    return await response.json();
+};
+
+export const getWeakness = async (token, id) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/weaknesses/${id}`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) throw new Error('Failed to fetch weakness');
+    return await response.json();
+};
+
+export const createWeakness = async (token, data) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/weaknesses`, {
+        method: 'POST',
+        headers: getHeaders(token),
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to create weakness');
+    }
+    return await response.json();
+};
+
+export const updateWeakness = async (token, id, data) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/weaknesses/${id}`, {
+        method: 'PATCH',
+        headers: getHeaders(token),
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to update weakness');
+    }
+    return await response.json();
+};
+
+export const deleteWeakness = async (token, id) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/weaknesses/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) throw new Error('Failed to delete weakness');
+    return true;
+};
