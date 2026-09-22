@@ -27,5 +27,6 @@ class WeekResponse(BaseModel):
     assessments: Optional[List[Dict[str, Any]]] = None
     mocks: Optional[List[Dict[str, Any]]] = None
     milestones: Optional[List[Dict[str, Any]]] = None
+    days: Optional[List[Dict[str, Any]]] = None
     created_at: datetime
     updated_at: datetime

@@ -24,21 +24,23 @@ async def get_tasks(
     for w in CURRICULUM:
         if week_id and w["id"] != week_id:
             continue
-        for t in w.get("tasks", []):
-            prog = progress_map.get(t["id"], {})
-            is_completed = prog.get("completed", False)
-            if completed is not None and is_completed != completed:
-                continue
-            
-            merged = {**t}
-            merged["week_id"] = w["id"]
-            merged["user_id"] = user_id
-            merged["completed"] = is_completed
-            merged["completed_at"] = prog.get("completed_at")
-            # Convert default iso strings if present
-            merged["created_at"] = prog.get("created_at") or datetime.now(timezone.utc)
-            merged["updated_at"] = prog.get("updated_at") or datetime.now(timezone.utc)
-            result.append(merged)
+        for d in w.get("days", []):
+            for t in d.get("tasks", []):
+                prog = progress_map.get(t["id"], {})
+                is_completed = prog.get("completed", False)
+                if completed is not None and is_completed != completed:
+                    continue
+                
+                merged = {**t}
+                merged["week_id"] = w["id"]
+                merged["day_id"] = d["id"]
+                merged["user_id"] = user_id
+                merged["completed"] = is_completed
+                merged["completed_at"] = prog.get("completed_at")
+                # Convert default iso strings if present
+                merged["created_at"] = prog.get("created_at") or datetime.now(timezone.utc)
+                merged["updated_at"] = prog.get("updated_at") or datetime.now(timezone.utc)
+                result.append(merged)
             
     return result
 
@@ -49,11 +51,16 @@ async def update_task(task_id: str, task_update: TaskUpdate, current_user: dict 
     # Verify task exists in curriculum
     curr_task = None
     curr_week = None
+    curr_day = None
     for w in CURRICULUM:
-        for t in w.get("tasks", []):
-            if t["id"] == task_id:
-                curr_task = t
-                curr_week = w
+        for d in w.get("days", []):
+            for t in d.get("tasks", []):
+                if t["id"] == task_id:
+                    curr_task = t
+                    curr_week = w
+                    curr_day = d
+                    break
+            if curr_task:
                 break
         if curr_task:
             break
@@ -86,6 +93,7 @@ async def update_task(task_id: str, task_update: TaskUpdate, current_user: dict 
     
     merged = {**curr_task}
     merged["week_id"] = curr_week["id"]
+    merged["day_id"] = curr_day["id"]
     merged["user_id"] = user_id
     merged["completed"] = prog.get("completed", False)
     merged["completed_at"] = prog.get("completed_at")

@@ -18,7 +18,15 @@ async def initialize_default_roadmap(user_id: str):
     if legacy_tasks:
         for lt in legacy_tasks:
             # Find the corresponding curriculum task by title
-            curr_task = next((t for w in CURRICULUM for t in w.get("tasks", []) if t["title"] == lt["title"]), None)
+            curr_task = None
+            for w in CURRICULUM:
+                for d in w.get("days", []):
+                    for t in d.get("tasks", []):
+                        if t["title"] == lt["title"]:
+                            curr_task = t
+                            break
+                    if curr_task: break
+                if curr_task: break
             
             if curr_task:
                 # Upsert into task_progress

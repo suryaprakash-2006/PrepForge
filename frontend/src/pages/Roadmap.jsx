@@ -271,50 +271,76 @@ const Roadmap = () => {
                                 </select>
                             </div>
                             
-                            {/* Task List */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            {/* Task List by Day */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
                                 {filteredTasks.length === 0 ? (
                                     <div style={{ padding: '20px', textAlign: 'center', backgroundColor: 'white', border: '1px dashed #ccc', color: '#777', borderRadius: '4px' }}>
                                         No tasks match the current filters.
                                     </div>
                                 ) : (
-                                    filteredTasks.map(task => (
-                                        <label 
-                                            key={task.id} 
-                                            style={{ display: 'flex', alignItems: 'flex-start', gap: '15px', padding: '15px', backgroundColor: task.completed ? '#f0fdf4' : 'white', border: '1px solid', borderColor: task.completed ? '#c6f6d5' : '#ddd', borderRadius: '4px', cursor: updatingTask === task.id ? 'wait' : 'pointer', transition: 'background-color 0.2s' }}
-                                        >
-                                            <input 
-                                                type="checkbox" 
-                                                checked={task.completed}
-                                                onChange={() => handleToggleTask(task)}
-                                                disabled={updatingTask === task.id}
-                                                aria-label={`Mark task ${task.title} as ${task.completed ? 'incomplete' : 'complete'}`}
-                                                style={{ marginTop: '5px', width: '18px', height: '18px', cursor: updatingTask === task.id ? 'wait' : 'pointer' }}
-                                            />
-                                            <div style={{ flex: 1 }}>
-                                                <div style={{ fontWeight: 'bold', textDecoration: task.completed ? 'line-through' : 'none', color: task.completed ? '#666' : '#000' }}>
-                                                    {task.title}
+                                    selectedWeek.days?.map(day => {
+                                        const dayTasks = filteredTasks.filter(t => t.day_id === day.id);
+                                        if (dayTasks.length === 0) return null;
+                                        
+                                        return (
+                                            <div key={day.id} style={{ backgroundColor: 'white', border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden' }}>
+                                                <div style={{ padding: '15px 20px', backgroundColor: '#f1f5f9', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <strong style={{ fontSize: '16px', color: '#334155' }}>Day {day.day_number} — {day.day_name}</strong>
+                                                    <span style={{ fontSize: '13px', color: '#64748b', backgroundColor: '#e2e8f0', padding: '4px 8px', borderRadius: '12px' }}>
+                                                        ⏱️ {day.time_budget_minutes} min budget
+                                                    </span>
                                                 </div>
-                                                {task.description && <div style={{ fontSize: '14px', color: '#555', marginTop: '5px' }}>{task.description}</div>}
-                                                <div style={{ fontSize: '12px', color: '#888', marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
-                                                    {task.category && <span style={{ backgroundColor: '#e2e8f0', padding: '2px 6px', borderRadius: '4px', color: '#4a5568' }}>{task.category}</span>}
-                                                    {task.task_type && <span style={{ backgroundColor: '#fed7d7', padding: '2px 6px', borderRadius: '4px', color: '#c53030' }}>{task.task_type}</span>}
-                                                    {task.estimated_minutes && <span>⏱️ {task.estimated_minutes} min</span>}
-                                                    {task.completed_at && <span style={{ color: '#28a745' }}>Completed</span>}
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    {dayTasks.map((task, idx) => (
+                                                        <label 
+                                                            key={task.id} 
+                                                            style={{ 
+                                                                display: 'flex', 
+                                                                alignItems: 'flex-start', 
+                                                                gap: '15px', 
+                                                                padding: '15px 20px', 
+                                                                backgroundColor: task.completed ? '#f0fdf4' : 'white', 
+                                                                borderBottom: idx < dayTasks.length - 1 ? '1px solid #eee' : 'none',
+                                                                cursor: updatingTask === task.id ? 'wait' : 'pointer', 
+                                                                transition: 'background-color 0.2s' 
+                                                            }}
+                                                        >
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={task.completed}
+                                                                onChange={() => handleToggleTask(task)}
+                                                                disabled={updatingTask === task.id}
+                                                                aria-label={`Mark task ${task.title} as ${task.completed ? 'incomplete' : 'complete'}`}
+                                                                style={{ marginTop: '5px', width: '18px', height: '18px', cursor: updatingTask === task.id ? 'wait' : 'pointer' }}
+                                                            />
+                                                            <div style={{ flex: 1 }}>
+                                                                <div style={{ fontWeight: 'bold', textDecoration: task.completed ? 'line-through' : 'none', color: task.completed ? '#666' : '#000' }}>
+                                                                    {task.title}
+                                                                </div>
+                                                                {task.description && <div style={{ fontSize: '14px', color: '#555', marginTop: '5px' }}>{task.description}</div>}
+                                                                <div style={{ fontSize: '12px', color: '#888', marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'center' }}>
+                                                                    {task.category && <span style={{ backgroundColor: '#e2e8f0', padding: '2px 6px', borderRadius: '4px', color: '#4a5568' }}>{task.category}</span>}
+                                                                    {task.task_type && <span style={{ backgroundColor: '#fed7d7', padding: '2px 6px', borderRadius: '4px', color: '#c53030' }}>{task.task_type}</span>}
+                                                                    {task.estimated_minutes && <span>⏱️ {task.estimated_minutes} min</span>}
+                                                                    {task.completed_at && <span style={{ color: '#28a745' }}>Completed</span>}
+                                                                </div>
+                                                                {task.subtasks?.length > 0 && (
+                                                                    <div style={{ marginTop: '10px', fontSize: '13px', color: '#555' }}>
+                                                                        <strong style={{ display: 'block', marginBottom: '4px' }}>Subtasks:</strong>
+                                                                        <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                                                                            {task.subtasks.map((st, i) => (
+                                                                                <li key={i}>{st.title}</li>
+                                                                            ))}
+                                                                        </ul>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </label>
+                                                    ))}
                                                 </div>
-                                                {task.subtasks?.length > 0 && (
-                                                    <div style={{ marginTop: '10px', fontSize: '13px', color: '#555' }}>
-                                                        <strong style={{ display: 'block', marginBottom: '4px' }}>Subtasks:</strong>
-                                                        <ul style={{ margin: 0, paddingLeft: '20px' }}>
-                                                            {task.subtasks.map((st, i) => (
-                                                                <li key={i}>{st.title}</li>
-                                                            ))}
-                                                        </ul>
-                                                    </div>
-                                                )}
                                             </div>
-                                        </label>
-                                    ))
+                                        );
+                                    })
                                 )}
                             </div>
                         </div>

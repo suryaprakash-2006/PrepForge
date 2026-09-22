@@ -8,6 +8,7 @@ class Subtask(BaseModel):
 
 class TaskCreate(BaseModel):
     week_id: str
+    day_id: Optional[str] = None
     title: str = Field(..., min_length=1, max_length=200)
     description: Optional[str] = None
     category: Optional[str] = None
@@ -24,6 +25,7 @@ class TaskUpdate(BaseModel):
     description: Optional[str] = None
     category: Optional[str] = None
     day_number: Optional[int] = Field(None, ge=1, le=7)
+    day_id: Optional[str] = None
     estimated_minutes: Optional[int] = Field(None, ge=0)
     completed: Optional[bool] = None
     task_type: Optional[str] = None
@@ -35,6 +37,7 @@ class TaskResponse(BaseModel):
     id: str
     user_id: str
     week_id: str
+    day_id: Optional[str] = None
     title: str
     description: Optional[str] = None
     category: Optional[str] = None
