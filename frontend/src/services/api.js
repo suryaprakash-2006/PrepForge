@@ -195,3 +195,77 @@ export const saveWeeklyReview = async (token, weekNumber, data) => {
     return await response.json();
 };
 
+export const getAssessments = async (token) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/assessments`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to fetch assessments');
+    }
+    return await response.json();
+};
+
+export const getAssessment = async (token, assessmentId) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/assessments/${assessmentId}`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to fetch assessment');
+    }
+    return await response.json();
+};
+
+export const getAssessmentAttempts = async (token) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/assessments/attempts`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to fetch assessment attempts');
+    }
+    return await response.json();
+};
+
+export const startAssessmentAttempt = async (token, assessmentId) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/assessments/${assessmentId}/attempts`, {
+        method: 'POST',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to start assessment attempt');
+    }
+    return await response.json();
+};
+
+export const submitAssessmentAnswer = async (token, attemptId, questionId, selectedAnswer) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/assessment-attempts/${attemptId}/answers/${questionId}`, {
+        method: 'PATCH',
+        headers: getHeaders(token),
+        body: JSON.stringify({ selected_answer: selectedAnswer })
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to submit answer');
+    }
+    return await response.json();
+};
+
+export const submitAssessmentAttempt = async (token, attemptId) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/assessment-attempts/${attemptId}/submit`, {
+        method: 'POST',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to submit assessment attempt');
+    }
+    return await response.json();
+};
+
+

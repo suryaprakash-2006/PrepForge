@@ -72,10 +72,20 @@ class _DatabaseClient:
         await self._database["weaknesses"].create_index([("user_id", 1), ("priority", 1)])
         await self._database["weaknesses"].create_index([("user_id", 1), ("retry_date", 1)])
         await self._database["weekly_reviews"].create_index([("user_id", 1), ("week_number", 1)], unique=True)
+        await self._database["assessments"].create_index("id", unique=True)
+        await self._database["assessment_questions"].create_index([("assessment_id", 1), ("question_number", 1)], unique=True)
+        await self._database["assessment_questions"].create_index("id", unique=True)
+        await self._database["assessment_attempts"].create_index([("user_id", 1), ("assessment_id", 1)])
+        await self._database["assessment_attempts"].create_index([("user_id", 1), ("started_at", -1)])
+        
+        # Seed initial assessments and question bank
+        from app.data.assessment_seed import seed_assessments
+        await seed_assessments(self._database)
         
         logger.info(
             "MongoDB connected — database: '%s'", settings.DATABASE_NAME
         )
+
 
     async def close(self) -> None:
         """Close the Motor client on application shutdown."""

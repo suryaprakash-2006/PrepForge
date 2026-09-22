@@ -10,7 +10,9 @@ import Dashboard from './pages/Dashboard'
 import Roadmap from './pages/Roadmap'
 import Weaknesses from './pages/Weaknesses'
 import WeeklyReview from './pages/WeeklyReview'
+import Assessments from './pages/Assessments'
 import './index.css'
+
 
 
 const Landing = () => {
@@ -86,7 +88,9 @@ function App() {
             <Route path="roadmap" element={<Roadmap />} />
             <Route path="weaknesses" element={<Weaknesses />} />
             <Route path="weekly-review" element={<WeeklyReview />} />
+            <Route path="assessments" element={<Assessments />} />
           </Route>
+
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
