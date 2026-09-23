@@ -3,7 +3,7 @@
 ## 1. Executive Summary
 
 ### 1.1 Context & Purpose
-PrepForge is a structured 12-week preparation platform designed for technical internship drives. In the **Timed Coding Assessment Foundation** milestone, user-submitted source code is securely collected and stored as passive, untrusted plain text (capped at 64 KB) with zero code execution.
+PrepForge is a personal, structured 12-week preparation platform designed for technical internship drives. In the **Timed Coding Assessment Foundation** milestone, user-submitted source code is securely collected and stored as passive, untrusted plain text (capped at 64 KB) with zero code execution.
 
 This document designs the comprehensive architecture for a future **Secure Coding Judge & Execution Sandbox**. The goal of this engine is to safely compile, execute, and evaluate user-submitted Python and C++ code against deterministic test cases while upholding the following core project constraints:
 1. **Self-Hostable & Free-First:** Operable on low-cost hardware (e.g., a $5–$10/month Linux VPS with 1–2 vCPUs and 2 GB RAM) without requiring expensive third-party SaaS judge APIs or heavyweight distributed clusters.
@@ -13,7 +13,23 @@ This document designs the comprehensive architecture for a future **Secure Codin
 
 ---
 
-## 2. Threat Model
+## 2. Current System Context
+
+PrepForge is currently comprised of:
+- **Frontend:** React 18 SPA built with Vite, utilizing vanilla CSS/inline design systems for clean, minimal footprint.
+- **Backend:** FastAPI (Python 3.12) running async routes with Pydantic v2 schemas and Motor MongoDB async driver.
+- **Persistence:** MongoDB database storing curriculum weeks, tasks, user progress, weaknesses, weekly reviews, MCQ assessments, and coding assessments.
+- **Authentication:** Stateless JWT bearer tokens with password hashing via `passlib[bcrypt]`.
+- **Timed Coding Engine Foundation:**
+  - 10 curated DSA problems seeded across Arrays, Two Pointers, Sliding Window, Binary Search, Linked Lists, Stacks, Trees, Heaps, Graphs, Backtracking, and DP.
+  - 2 Week 11 timed simulation assessments (60m and 75m).
+  - Attempt lifecycle (`IN_PROGRESS` -> `SUBMITTED`).
+  - Strict 64 KB payload validation.
+  - **Invariants:** Stored purely as plain text. Zero code execution runtime exists in the application today (`eval`, `exec`, `subprocess`, `Docker` are strictly prohibited).
+
+---
+
+## 3. Threat Model
 
 User-submitted code must be classified as **untrusted, hostile bytecode/binaries**. Any execution environment that runs arbitrary user input is susceptible to severe security and infrastructure vulnerabilities.
 
@@ -29,7 +45,7 @@ System Disruption     Data Exfiltration / Tampering
 - Disk filling        - Reverse shells to internet
 ```
 
-### 2.1 Specific Threat Analysis
+### 3.1 Specific Threat Analysis
 1. **Arbitrary File Access:** Code attempts to read `/etc/passwd`, `.env`, MongoDB connection strings, JWT signing keys, or other users' attempts.
 2. **Arbitrary Command Execution:** Code executes `system()`, `popen()`, `execve()`, or launches interactive shells (`/bin/bash`).
 3. **Process Spawning & Fork Bombs:** Code executes `while(1) fork();` or `multiprocessing.Process` to exhaust host process table entries (PIDs).
@@ -43,7 +59,7 @@ System Disruption     Data Exfiltration / Tampering
 11. **Container Escape:** Exploitation of kernel vulnerabilities or improperly configured container privileges (`--privileged`, mounted Docker socket) to gain root access to the host.
 12. **Denial of Service via Queue Flooding:** Submitting hundreds of slow jobs simultaneously to lock up judge worker threads.
 
-### 2.2 Threat Classification Matrix
+### 3.2 Threat Classification Matrix
 
 | Threat | Status | Primary Enforcement Mechanism |
 | :--- | :--- | :--- |
@@ -64,52 +80,60 @@ System Disruption     Data Exfiltration / Tampering
 
 ---
 
-## 3. Execution Architecture Options
+## 4. Architecture Options
 
-We evaluate four architectural approaches for PrepForge's coding judge.
+We evaluate five architectural approaches for PrepForge's coding judge.
 
 ```
 Option A: Direct Subprocess (FastAPI Host)
 [ FastAPI Backend ] ───(subprocess.run)───> [ Host OS ] (UNSAFE)
 
-Option B: Docker-in-Docker / Local Container per Run
+Option B: Docker/Container Sandbox inside FastAPI
 [ FastAPI Backend ] ───(docker run)───> [ Ephemeral Docker Sandbox ]
 
-Option C: Dedicated Worker + Message Queue (Celery/Redis)
+Option C: Dedicated Remote Judge Service (HTTP/gRPC)
+[ FastAPI ] ───(HTTP)───> [ Remote Judge Server ] ───> [ Sandbox ]
+
+Option D: Dedicated Worker + Message Queue (Celery/Redis)
 [ FastAPI ] ───> [ Redis ] ───> [ Celery Worker ] ───> [ Sandbox ]
 
-Option D (Recommended): Decoupled Polling Judge Worker (MongoDB Job Queue)
+Option E (Recommended): Decoupled Polling Judge Worker (MongoDB Job Queue)
 [ FastAPI Backend ] ───(Job Insert)───> [ MongoDB Queue ] <───(Poll/Claim)─── [ Judge Worker ] ───> [ Sandbox ]
 ```
 
-### 3.1 Architectural Trade-Off Analysis
+### 4.1 Comparative Analysis
 
-| Criteria | Option A: Direct Subprocess on Host | Option B: Ephemeral Docker in FastAPI | Option C: Dedicated Worker (Redis/Celery) | Option D: Decoupled Worker (MongoDB Queue) |
-| :--- | :--- | :--- | :--- | :--- |
-| **Isolation Level** | **Zero / Dangerous** (Host compromise) | High (Container boundaries) | High (Container + Service isolation) | **High (Container + Service isolation)** |
-| **Security Risk** | Critical | Low | Low | **Low** |
-| **Implementation Complexity** | Low | Medium | High | **Medium-Low** |
-| **Windows Dev Compatibility** | Risky / Problematic | Requires Docker Desktop | High (multiple services) | **Excellent (Mock on Win / Docker on Linux)** |
-| **Linux Deployment Compatibility**| Poor | Good | Good | **Excellent (Single Docker Compose)** |
-| **Resource Limiting** | Weak / Inconsistent on Windows | Strong (cgroups) | Strong (cgroups) | **Strong (cgroups)** |
-| **Infrastructure Overhead** | None | Low | High (Redis + Celery daemons) | **Minimal (Uses existing MongoDB)** |
-| **Host Resource Usage ($5 VPS)** | Low | Low-Medium | High (RAM pressure) | **Low (Lean Python worker daemon)** |
-| **Suitability for PrepForge** | **REJECTED** | Feasible | Over-engineered | **RECOMMENDED** |
+| Criteria | Option A: Subprocess on Host | Option B: Docker in FastAPI | Option C: Remote Judge API | Option D: Celery + Redis | Option E: Decoupled Worker + MongoDB |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Isolation Level** | **Zero / Dangerous** | High | High | High | **High** |
+| **Security Risk** | Critical | Low | Low | Low | **Low** |
+| **Implementation Complexity** | Low | Medium | High | High | **Medium-Low** |
+| **Windows Dev Compatibility** | Risky | Requires Docker | High | High | **Excellent (Mock on Win / Docker on Linux)** |
+| **Linux Deployment Compatibility**| Poor | Good | Good | Good | **Excellent (Single Docker Compose)** |
+| **Resource Limiting** | Weak / Inconsistent | Strong (cgroups) | Strong (cgroups) | Strong (cgroups) | **Strong (cgroups)** |
+| **Infrastructure Overhead** | None | Low | High (2nd Server) | High (Redis daemon) | **Minimal (Uses existing MongoDB)** |
+| **RAM Footprint ($5 VPS)** | Low | Low-Medium | Medium | High | **Low (Lean Python worker daemon)** |
+| **Suitability for PrepForge** | **REJECTED** | Feasible | Over-engineered | Over-engineered | **RECOMMENDED** |
 
-### 3.2 Decision & Rationale
-- **Option A is REJECTED:** Direct host subprocess execution on the FastAPI host exposes the entire application, database credentials, and host server to trivial compromise.
-- **Option C is REJECTED for MVP:** Introducing Redis, Celery, or RabbitMQ adds memory and operational overhead that violates PrepForge's single-node, free-first deployment goals.
-- **Option D is SELECTED:** A decoupled Python Judge Worker that polls MongoDB for queued jobs provides:
-  1. Complete decoupling between the web API and untrusted code execution.
-  2. Crash resilience (a worker crash never brings down FastAPI or the user session).
-  3. Zero new infrastructure dependencies (leverages existing MongoDB database for durable job state).
-  4. Pluggable sandbox backend: uses disposable Docker/Podman containers or `nsjail` on Linux, while falling back to a safe mock runner during local Windows development.
+### 4.2 Recommendation & Rationale
+- **Option A is REJECTED:** Direct host execution provides zero defense-in-depth and easily compromises host secrets.
+- **Option C & D are REJECTED for MVP:** Adding external judge APIs or Redis/Celery brokers introduces unnecessary dependencies, operational friction, and memory consumption on low-cost single-node VPS environments.
+- **Option E is SELECTED:** A standalone Judge Worker that atomically claims jobs from MongoDB provides strong isolation, crash resilience, zero new infrastructure daemons, and a safe mock workflow for Windows development.
 
 ---
 
-## 4. Recommended Architecture
+## 5. Recommended Architecture
 
-### 4.1 System Topology Diagram
+The system consists of 5 decoupled layers:
+1. **Client Tier (Untrusted):** Browser frontend for source code entry, timer tracking, and result review.
+2. **Web API Tier (Trusted DMZ):** FastAPI backend managing auth, attempt state, and job creation.
+3. **Queue & Persistence Tier (Trusted):** MongoDB holding problems, test cases, jobs, and results.
+4. **Judge Dispatcher Tier (Trusted):** Background Python worker claiming queued jobs and managing test execution.
+5. **Sandbox Runtime Tier (Zero-Trust):** Ephemeral Linux container or `nsjail` sandbox executing hostile user code with zero privileges.
+
+---
+
+## 6. Mermaid Architecture Diagram
 
 ```mermaid
 flowchart TD
@@ -158,9 +182,238 @@ flowchart TD
 
 ---
 
-## 5. Execution Flow & Lifecycle
+## 7. Trust Boundaries
 
-The lifecycle of a code submission follows a deterministic 10-step pipeline:
+```
+┌──────────────────────────────────────────────────────────────────┐
+│ TRUST ZONE 0: Untrusted External Zone (User Browser / Client)     │
+│ - Raw code input, untrusted HTTP payloads                        │
+└─────────────────────────────────┬────────────────────────────────┘
+                                  │ HTTP / TLS (JWT Bearer)
+┌─────────────────────────────────▼────────────────────────────────┐
+│ TRUST ZONE 1: Trusted Web DMZ (FastAPI Application)              │
+│ - JWT Authentication, Pydantic 64KB Validator, Route Handler    │
+└─────────────────────────────────┬────────────────────────────────┘
+                                  │ Internal Network
+┌─────────────────────────────────▼────────────────────────────────┐
+│ TRUST ZONE 2: Trusted Data Core (MongoDB Database)               │
+│ - Curated Questions, Test Cases, Job Queue, Execution Results    │
+└─────────────────────────────────┬────────────────────────────────┘
+                                  │ Atomic Poll / Claim
+┌─────────────────────────────────▼────────────────────────────────┐
+│ TRUST ZONE 3: Trusted Dispatcher (Judge Worker Daemon)           │
+│ - Job Scheduler, Test Input Feeder, Output Comparator            │
+└─────────────────────────────────┬────────────────────────────────┘
+                                  │ Linux cgroups / nsjail boundary
+┌─────────────────────────────────▼────────────────────────────────┐
+│ TRUST ZONE 4: Zero-Trust Hostile Sandbox (Unprivileged Runner)    │
+│ - UID 10001 (nobody), --network none, Read-Only Root, 16MB Tmpfs │
+│ - Hostile Python / C++ Program Execution                         │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 8. Python Execution Strategy
+
+```
+  ┌───────────────────────────────────────────────────────────┐
+  │                 PYTHON EXECUTION STRATEGY                 │
+  ├───────────────────────────────────────────────────────────┤
+  │ - Runtime: CPython 3.12 minimal base                      │
+  │ - Command: python3 -B -u solution.py < in.txt > out.txt   │
+  │ - Flags: -B (no .pyc write), -u (unbuffered I/O)          │
+  │ - Imports: Standard library only                          │
+  │ - Security: Kernel cgroups + seccomp (no AST parsing)     │
+  └───────────────────────────────────────────────────────────┘
+```
+
+- **Interpreter:** Standard CPython 3.12 in minimal container base.
+- **Execution Command Concept:**
+  ```bash
+  python3 -B -u solution.py < input.txt > output.txt
+  ```
+- **Flags Rationale:**
+  - `-B`: Prevents `.pyc` compilation to filesystem.
+  - `-u`: Ensures stdout/stderr streams are unbuffered for immediate truncation and capture.
+- **Security Rule:** **Do not rely on Python AST filtering or module monkeypatching.** Attackers easily circumvent AST filters via `__builtins__`, `eval()`, string manipulation, or `ctypes`. Security is strictly enforced by OS cgroups, namespaces, and dropped privileges.
+
+---
+
+## 9. C++ Execution Strategy
+
+```
+  ┌───────────────────────────────────────────────────────────┐
+  │                  C++ EXECUTION STRATEGY                   │
+  ├───────────────────────────────────────────────────────────┤
+  │ - Compiler: GCC 13+ (g++)                                 │
+  │ - Compilation Command: g++ -O2 -std=c++20 -static -fno-asm│
+  │ - Compile Timeout: 10.0 seconds / 512 MB RAM              │
+  │ - Execution: ./solution.bin < in.txt > out.txt            │
+  │ - Execution Timeout: 2.0 seconds / 256 MB RAM             │
+  └───────────────────────────────────────────────────────────┘
+```
+
+- **Compiler:** GCC 13+ (`g++`).
+- **Compilation Stage Concept:**
+  ```bash
+  g++ -O2 -std=c++20 -static -fno-asm -Wall solution.cpp -o solution.bin
+  ```
+- **Flags Rationale:**
+  - `-O2`: Matches standard interview / competitive programming optimization.
+  - `-std=c++20`: Full modern C++ STL support.
+  - `-static`: Eliminates runtime shared library dependencies inside the execution jail.
+  - `-fno-asm`: Blocks inline assembly instructions.
+- **Compilation Limits:** Max 10.0s time, 512 MB RAM. Errors sanitized and capped at 4 KB.
+
+---
+
+## 10. Resource Limits
+
+| Resource Parameter | MVP Bound | Enforcement Mechanism | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Source Code Payload** | 64 KB | FastAPI Pydantic validator | Prevent oversized payload flooding |
+| **Compilation Timeout** | 10.0 s | Subprocess watchdog timer | Prevent preprocessor / template lockups |
+| **Compilation Memory** | 512 MB | Container cgroups (`memory.max`) | Prevent compiler OOM crashes |
+| **Execution Time (CPU)** | 2.0 s per test | Linux cgroups `cpu.max` / `rlimit` | Terminate infinite loops |
+| **Execution Wall-Clock** | 3.0 s per test | Worker supervisor (`SIGKILL`) | Catch non-CPU blocking syscalls |
+| **Execution Memory** | 256 MB per test| Linux cgroups `memory.max` (`-m 256m`)| Prevent memory exhaustion |
+| **Max Process Count** | 16 PIDs | Linux cgroups `pids.max` (`16`) | Prevent fork bombs |
+| **Temporary Disk Space** | 16 MB | RAM-backed `tmpfs` disk mount | Prevent disk filling attacks |
+| **Output Size (Stdout)** | 1 MB | Truncated stream reader buffer | Prevent output flooding |
+| **Worker Concurrency** | 2 jobs / core | Dispatcher semaphore | Prevent CPU contention & timing jitter |
+| **Max Test Cases / Problem** | 20 test cases | Seeding validator | Bound total execution duration |
+
+---
+
+## 11. Network Isolation
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    NETWORK ISOLATION                        │
+│                                                             │
+│   Host Server                Sandbox Container              │
+│  ┌───────────┐              ┌───────────────────────────┐   │
+│  │ FastAPI   │              │   Hostile User Code       │   │
+│  │ MongoDB   │      X       │                           │   │
+│  │ Internet  │ ───────────► │   --network none          │   │
+│  │ LAN / DNS │              │   No eth0, No loopback,   │   │
+│  │ Metadata  │              │   No Sockets Permitted    │   │
+│  └───────────┘              └───────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+- **Policy:** **ZERO NETWORK ACCESS (`--network none` / `CLONE_NEWNET`)**.
+- **Blocked:** Public Internet, DNS, localhost loopback to MongoDB/FastAPI, local subnet LAN, and cloud instance metadata (`169.254.169.254`).
+- **Enforcement:** Container provisioned without virtual network interfaces (loopback disabled or unrouted).
+
+---
+
+## 12. Filesystem Isolation
+
+```
+[Host Filesystem] (Completely Inaccessible)
+   ├── /app/
+   ├── /etc/
+   └── .env (PROTECTED)
+
+[Sandbox Rootfs] (Read-Only)
+   ├── /bin/
+   ├── /lib/
+   └── /usr/
+
+[Sandbox Workspace] (tmpfs in RAM, 16 MB, Unprivileged, Wiped after run)
+   ├── solution.cpp / solution.py
+   ├── input.txt
+   └── output.txt
+```
+
+- **Read-Only Root:** Container rootfs mounted strictly as read-only (`--read-only`).
+- **RAM-backed `tmpfs` Workspace:** Temporary files live in RAM (`tmpfs`, 16 MB cap), preventing physical disk wear and cross-attempt contamination.
+- **Environment Scrubbing:** Executed with clean environment (`env -i`), completely isolating `.env`, `JWT_SECRET`, and database credentials.
+- **Deterministic Teardown:** Python `finally` block unmounts and removes the temporary directory upon success, error, timeout, or crash.
+
+---
+
+## 13. Test Case Model
+
+### 13.1 Schema (`coding_test_cases`)
+```json
+{
+  "_id": "ObjectId",
+  "id": "tc-two-sum-01",
+  "problem_id": "two-sum-sorted",
+  "order": 1,
+  "input": "4\n2 7 11 15\n9\n",
+  "expected_output": "1 2",
+  "is_hidden": false,
+  "time_limit_ms": 2000,
+  "memory_limit_mb": 256,
+  "created_at": "2026-09-23T12:00:00Z"
+}
+```
+
+### 13.2 Public vs. Hidden Test Cases
+- **Public Sample Cases (`is_hidden: false`):** Represent visible problem examples; full input and expected output returned for debugging.
+- **Hidden Assessment Cases (`is_hidden: true`):** Test edge cases and limits. Only pass/fail status and execution metrics are returned.
+- **Security Rule:** Hidden inputs and expected outputs are strictly filtered out by FastAPI serialization schemas before sending to the browser.
+
+---
+
+## 14. Result Model
+
+### 14.1 Authoritative Verdict Enum
+- `QUEUED`: Waiting in job queue.
+- `RUNNING`: Executing in sandbox.
+- `ACCEPTED` (`AC`): All test cases passed within limits.
+- `WRONG_ANSWER` (`WA`): Output mismatch on one or more test cases.
+- `TIME_LIMIT_EXCEEDED` (`TLE`): CPU or wall-clock budget exceeded.
+- `MEMORY_LIMIT_EXCEEDED` (`MLE`): RAM limit exceeded.
+- `COMPILE_ERROR` (`CE`): Compilation failed.
+- `RUNTIME_ERROR` (`RE`): Non-zero exit code / crash.
+- `OUTPUT_LIMIT_EXCEEDED` (`OLE`): Generated > 1 MB of stdout.
+- `SYSTEM_ERROR` (`SE`): Infrastructure failure (sandbox startup error).
+
+### 14.2 Schema (`coding_execution_results`)
+```json
+{
+  "id": "res-uuid-1234",
+  "job_id": "job-uuid-5678",
+  "attempt_id": "att-uuid-9012",
+  "problem_id": "two-sum-sorted",
+  "user_id": "user-uuid-3456",
+  "verdict": "ACCEPTED",
+  "passed_test_cases": 5,
+  "total_test_cases": 5,
+  "score_awarded": 10,
+  "execution_time_ms": 42,
+  "peak_memory_mb": 18.4,
+  "compiler_output": "",
+  "created_at": "2026-09-23T12:05:00Z"
+}
+```
+
+---
+
+## 15. Scoring Model
+
+### 15.1 Formula
+For problem marks $M$, total test cases $T$, and passed test cases $P$:
+
+$$\text{Problem Score} = \text{round}\left( \frac{P}{T} \times M \right)$$
+
+- **Full Credit:** $P = T \implies \text{Score} = M$ (`verdict = ACCEPTED`).
+- **Partial Credit:** $0 < P < T \implies \text{Score} = \text{round}(\frac{P}{T} \times M)$ (`verdict = WRONG_ANSWER`).
+- **Zero Credit:** `COMPILE_ERROR`, 0 test cases passed, or unsubmitted ($\text{Score} = 0$).
+
+### 15.2 Assessment Aggregation
+$$\text{Total Score} = \sum_{i=1}^k \text{Score}(p_i), \quad \text{Percentage} = \left(\frac{\text{Total Score}}{\text{Total Marks}}\right) \times 100$$
+
+$$\text{Passed} = \text{Percentage} \ge \text{Passing Score}$$
+
+---
+
+## 16. Execution Lifecycle
 
 ```mermaid
 sequenceDiagram
@@ -206,326 +459,36 @@ sequenceDiagram
 
 ---
 
-## 6. Language Strategy
+## 17. Async Architecture
 
-```
-  ┌───────────────────────────────────────────────────────────┐
-  │                    LANGUAGE STRATEGY                      │
-  ├─────────────────────────────┬─────────────────────────────┤
-  │       Python 3.12+          │        C++ 20 (GCC)         │
-  ├─────────────────────────────┼─────────────────────────────┤
-  │ - Clean CPython Interpreter │ - g++ 13+ Compiler          │
-  │ - Unbuffered mode (-u)      │ - Flags: -O2 -std=c++20     │
-  │ - Bytecode disabled (-B)    │ - Static linking (-static)  │
-  │ - Isolated stdlib only      │ - Disallow asm (-fno-asm)   │
-  │ - OS-level containment     │ - Strict 10s compile limit  │
-  └─────────────────────────────┴─────────────────────────────┘
-```
-
-### 6.1 Python Strategy
-- **Interpreter:** Standard CPython 3.12 (standard minimal base image).
-- **Execution Command:**
-  ```bash
-  python3 -B -u solution.py < input.txt > output.txt
+### 17.1 MongoDB Queue vs Redis/Celery
+- **Zero Daemon Overhead:** Utilizes existing MongoDB instance, saving 200–400 MB of RAM on budget VPS hosts.
+- **Atomic Claiming:** Uses `find_one_and_update` on `coding_execution_jobs`:
+  ```python
+  job = await db["coding_execution_jobs"].find_one_and_update(
+      {"status": "QUEUED"},
+      {"$set": {"status": "RUNNING", "claimed_at": datetime.now(timezone.utc)}},
+      sort=[("created_at", 1)]
+  )
   ```
-- **Flags:**
-  - `-B`: Prevents `.pyc` bytecode files from being written to disk.
-  - `-u`: Forces unbuffered binary stdout and stderr streams for accurate real-time output capture.
-- **Security Rule:** **Never rely on Python AST filtering or module monkeypatching.** Attackers routinely bypass AST blocklists via `__builtins__`, `eval()`, string interpolation, or C-extensions. Full isolation is strictly delegated to the OS container layer.
-
-### 6.2 C++ Strategy
-- **Compiler:** GCC 13+ (`g++`).
-- **Compilation Command:**
-  ```bash
-  g++ -O2 -std=c++20 -static -fno-asm -Wall solution.cpp -o solution.bin
-  ```
-- **Flags:**
-  - `-O2`: Standard optimization level matching competitive programming standards.
-  - `-std=c++20`: Modern language features and standard template library (STL).
-  - `-static`: Eliminates dynamic linking dependencies inside the execution sandbox.
-  - `-fno-asm`: Disables inline assembly instructions (`__asm__`).
-- **Compilation Constraints:**
-  - Time limit: 10.0 seconds.
-  - Memory limit: 512 MB.
-  - Compiler error messages sanitized and truncated at 4 KB before returning to the user.
+- **Stale Lock Recovery:** Reclaims stuck jobs older than 5 minutes.
 
 ---
 
-## 7. Resource Limits & Enforcement Matrix
+## 18. Failure Handling
 
-Security limits must be applied at multiple defense layers:
-
-```
-[Layer 1: Application (FastAPI)] ──> Max 64 KB source payload
-[Layer 2: Compiler Sandbox]      ──> Max 10.0s time, 512 MB RAM
-[Layer 3: Execution Sandbox]     ──> Max 2.0s CPU, 256 MB RAM, 16 PIDs, 16 MB tmpfs, 0 Net
-[Layer 4: Output Collector]      ──> Max 1 MB stdout capture
-```
-
-### 7.1 Detailed Resource Bounds
-
-| Parameter | Limit | Enforcement Layer | Action on Violation |
-| :--- | :--- | :--- | :--- |
-| **Source Code Size** | 64 KB | FastAPI Pydantic validator | HTTP 422 / 400 Bad Request |
-| **Compilation Timeout** | 10.0s | Worker timeout / Subprocess timer | Return `COMPILE_ERROR` ("Compilation Timed Out") |
-| **Compilation Memory** | 512 MB | Container cgroups (`memory.max`) | Return `COMPILE_ERROR` ("Compiler Out of Memory") |
-| **Execution Time (CPU)** | 2.0s (default) | Linux cgroups / `setrlimit(RLIMIT_CPU)` | Return `TIME_LIMIT_EXCEEDED` (`TLE`) |
-| **Execution Wall Clock** | 3.0s | Worker supervisor process (`SIGKILL`) | Return `TIME_LIMIT_EXCEEDED` (`TLE`) |
-| **Execution Memory** | 256 MB | Linux cgroups (`memory.max` / `-m 256m`) | Return `MEMORY_LIMIT_EXCEEDED` (`MLE`) |
-| **Max Process Count** | 16 PIDs | Linux cgroups (`pids.max = 16`) | Fork blocked (`EAGAIN` / `RUNTIME_ERROR`) |
-| **Temporary Disk Space** | 16 MB | `tmpfs` RAM disk mount size limit | Disk write fails (`ENOSPC` / `RUNTIME_ERROR`) |
-| **Output Size** | 1 MB | Stream reader buffer limit | Truncate output + `OUTPUT_LIMIT_EXCEEDED` / `WA` |
-| **Max Concurrent Jobs** | 2 per CPU core | Judge Worker job concurrency semaphore | Job remains `QUEUED` in MongoDB |
+| Failure Condition | Error Category | System Response |
+| :--- | :--- | :--- |
+| **Compiler Error** | User Code Error | Return `COMPILE_ERROR` with sanitized stderr. |
+| **Timeout / Infinite Loop** | User Code Error | Send `SIGKILL` at 2.0s, return `TIME_LIMIT_EXCEEDED`. |
+| **Memory Exhaustion (OOM)**| User Code Error | Detect cgroup OOM kill, return `MEMORY_LIMIT_EXCEEDED`. |
+| **Runtime Crash / Segfault**| User Code Error | Return `RUNTIME_ERROR` with exit status code. |
+| **Sandbox Engine Crash** | Judge System Error | Retry job up to 2 times; mark `SYSTEM_ERROR` if unresolved. |
+| **Worker Process Restart** | Judge System Error | Stale lock reaper resets `RUNNING` job to `QUEUED`. |
 
 ---
 
-## 8. Network Security Policy
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    NETWORK ISOLATION                        │
-│                                                             │
-│   Host Server                Sandbox Container              │
-│  ┌───────────┐              ┌───────────────────────────┐   │
-│  │ FastAPI   │              │   Hostile User Code       │   │
-│  │ MongoDB   │      X       │                           │   │
-│  │ Internet  │ ───────────► │   --network none          │   │
-│  │ LAN / DNS │              │   No eth0, No loopback,   │   │
-│  │ Metadata  │              │   No Sockets Permitted    │   │
-│  └───────────┘              └───────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-```
-
-1. **Zero Network Interfaces:** Sandboxes are provisioned with `--network none` (Docker) or unshared network namespace (`CLONE_NEWNET` via `nsjail`).
-2. **Blocked Targets:**
-   - Public Internet: Zero outbound requests (no HTTP, DNS, raw TCP/UDP).
-   - Localhost / Loopback: Cannot connect to FastAPI (`127.0.0.1:8000`) or MongoDB (`127.0.0.1:27017`).
-   - Private LAN: Cannot probe other servers on the host private subnet (`10.0.0.0/8`, `192.168.0.0/16`).
-   - Cloud Metadata: Cannot reach `169.254.169.254` to steal instance credentials.
-3. **Rationale:** Complete network deprivation neutralizes all data exfiltration, SSRF, reverse shells, and network botnet attacks at the Linux kernel level.
-
----
-
-## 9. Filesystem Security & Workspace Isolation
-
-```
-[Host Filesystem] (Completely Inaccessible)
-   ├── /app/
-   ├── /etc/
-   └── .env (PROTECTED)
-
-[Sandbox Rootfs] (Read-Only)
-   ├── /bin/
-   ├── /lib/
-   └── /usr/
-
-[Sandbox Workspace] (tmpfs in RAM, 16 MB, Unprivileged, Wiped after run)
-   ├── solution.cpp / solution.py
-   ├── input.txt
-   └── output.txt
-```
-
-1. **Read-Only Root Filesystem:** System binaries and libraries inside the container image are mounted strictly as read-only (`--read-only`).
-2. **RAM-backed `tmpfs` Workspace:** Each test run receives an isolated `/sandbox` directory mounted as a temporary RAM disk (`tmpfs`) with a 16 MB limit and `noexec` on subpaths where applicable.
-3. **Clean Environment Isolation:** The execution command runs under an empty environment (`env -i`) so that host secrets (`MONGODB_URL`, `JWT_SECRET`) are never inherited.
-4. **Non-Root Execution:** Executed under dedicated unmapped system user `nobody` (`UID 10001`, `GID 10001`).
-5. **Deterministic Cleanup:** After execution (or upon unexpected crash/timeout), the worker's `finally` block unmounts and deletes the workspace directory.
-
----
-
-## 10. Test Case Model & Storage Strategy
-
-### 10.1 Schema: `coding_test_cases`
-```json
-{
-  "_id": "ObjectId",
-  "id": "tc-two-sum-01",
-  "problem_id": "two-sum-sorted",
-  "order": 1,
-  "input": "4\n2 7 11 15\n9\n",
-  "expected_output": "1 2",
-  "is_hidden": false,
-  "time_limit_ms": 2000,
-  "memory_limit_mb": 256,
-  "created_at": "2026-09-23T12:00:00Z"
-}
-```
-
-### 10.2 Public vs. Hidden Test Cases
-- **Public Sample Cases (`is_hidden: false`):**
-  - Match the examples in the problem description.
-  - When evaluated, full input, user output, and expected output are visible to the user for debugging.
-- **Hidden Assessment Cases (`is_hidden: true`):**
-  - Test boundary conditions (empty lists, max constraints, negative values, duplicates).
-  - When evaluated, only the verdict (`Passed` / `Failed`) and execution time/memory are returned.
-  - **Security Invariant:** API endpoints strictly censor `input` and `expected_output` for hidden test cases.
-
-### 10.3 Storage Location
-- Test cases are stored in the MongoDB `coding_test_cases` collection.
-- Seeded idempotently during backend startup from declarative seed definitions.
-- Keeps test-case management consistent with PrepForge's static curriculum seed architecture.
-
----
-
-## 11. Result Model & Status Codes
-
-### 11.1 Authoritative Verdict Enum
-- `QUEUED`: Job is waiting in queue for an available worker.
-- `RUNNING`: Job is currently executing inside the sandbox.
-- `ACCEPTED` (`AC`): All test cases passed with identical outputs within time/memory limits.
-- `WRONG_ANSWER` (`WA`): Output differed from expected output on one or more test cases.
-- `TIME_LIMIT_EXCEEDED` (`TLE`): CPU or wall-clock limit exceeded.
-- `MEMORY_LIMIT_EXCEEDED` (`MLE`): RAM limit exceeded.
-- `COMPILE_ERROR` (`CE`): C++ source code failed compilation.
-- `RUNTIME_ERROR` (`RE`): Script crashed (uncaught exception, segfault, zero division).
-- `SYSTEM_ERROR` (`SE`): Internal infrastructure failure (sandbox failed to launch).
-
-### 11.2 Result Record Schema (`coding_execution_results`)
-```json
-{
-  "id": "res-uuid-1234",
-  "job_id": "job-uuid-5678",
-  "attempt_id": "att-uuid-9012",
-  "problem_id": "two-sum-sorted",
-  "user_id": "user-uuid-3456",
-  "verdict": "ACCEPTED",
-  "passed_test_cases": 5,
-  "total_test_cases": 5,
-  "score_awarded": 10,
-  "execution_time_ms": 42,
-  "peak_memory_mb": 18.4,
-  "compiler_output": "",
-  "test_case_results": [
-    {
-      "test_case_id": "tc-two-sum-01",
-      "order": 1,
-      "is_hidden": false,
-      "verdict": "ACCEPTED",
-      "time_ms": 12,
-      "memory_mb": 14.2,
-      "user_output": "1 2",
-      "expected_output": "1 2"
-    },
-    {
-      "test_case_id": "tc-two-sum-02",
-      "order": 2,
-      "is_hidden": true,
-      "verdict": "ACCEPTED",
-      "time_ms": 30,
-      "memory_mb": 18.4,
-      "user_output": null,
-      "expected_output": null
-    }
-  ],
-  "created_at": "2026-09-23T12:05:00Z"
-}
-```
-
----
-
-## 12. Assessment Scoring & Grading Model
-
-### 12.1 Problem-Level Scoring
-For a problem with maximum marks $M$ and $T$ total test cases, where $P$ test cases pass:
-
-$$\text{Problem Score} = \text{round}\left( \frac{P}{T} \times M \right)$$
-
-- **Full Credit:** All test cases pass ($P = T \implies \text{Score} = M$, `verdict = ACCEPTED`).
-- **Partial Credit:** Subset of test cases pass ($0 < P < T \implies \text{Score} = \text{round}(\frac{P}{T} \times M)$, `verdict = WRONG_ANSWER`).
-- **Zero Credit:** `COMPILE_ERROR`, zero test cases passed, or problem unsubmitted ($\text{Score} = 0$).
-
-### 12.2 Assessment-Level Aggregation
-For an assessment containing problems $p_1, p_2, \dots, p_k$:
-
-$$\text{Total Score} = \sum_{i=1}^k \text{Score}(p_i)$$
-
-$$\text{Total Marks} = \sum_{i=1}^k \text{Marks}(p_i)$$
-
-$$\text{Percentage} = \left( \frac{\text{Total Score}}{\text{Total Marks}} \right) \times 100$$
-
-$$\text{Passed} = \text{Percentage} \ge \text{Passing Score}$$
-
-Unanswered problems default to 0 marks and `NOT_SUBMITTED`.
-
----
-
-## 13. Asynchronous Execution Strategy
-
-```
-[FastAPI Backend] ──(1. Insert Job)──> [MongoDB: coding_execution_jobs]
-                                               │
-                                               │ (2. Atomic Claim: find_and_modify)
-                                               ▼
-                                      [Judge Worker Daemon]
-                                               │
-                                               │ (3. Execute in Sandbox)
-                                               ▼
-[FastAPI Polling] <──(4. Update Doc)── [MongoDB: coding_execution_results]
-```
-
-### 13.1 Why MongoDB Queue over Redis/Celery?
-1. **Zero Extra Daemon Overhead:** PrepForge already runs MongoDB. Running a separate Redis instance plus Celery workers consumes 200–400 MB of extra RAM on constrained VPS hosts.
-2. **Atomic Job Claiming:** MongoDB's `find_one_and_update` provides atomic, race-free job claiming across multiple workers:
-   ```python
-   job = await db["coding_execution_jobs"].find_one_and_update(
-       {"status": "QUEUED"},
-       {"$set": {"status": "RUNNING", "claimed_at": datetime.now(timezone.utc)}},
-       sort=[("created_at", 1)]
-   )
-   ```
-3. **Crash Recovery & Stale Lock Reclamation:** If a worker crashes while processing a job, any job in `RUNNING` status whose `claimed_at` timestamp is older than 5 minutes is automatically reset to `QUEUED`.
-
----
-
-## 14. Failure Handling & Resilience
-
-| Scenario | Classification | System Behavior | User Impact |
-| :--- | :--- | :--- | :--- |
-| **Compilation Error** | User Error | Worker captures stderr, marks job `COMPLETED`, verdict `COMPILE_ERROR`. | User receives compiler message to fix code. |
-| **Infinite Loop / Timeout** | User Error | Worker sends `SIGKILL` at 2.0s, marks test case `TIME_LIMIT_EXCEEDED`. | Problem scored 0 for that test case. |
-| **Memory Crash (OOM)** | User Error | cgroups kills process, worker detects OOM exit code, marks `MEMORY_LIMIT_EXCEEDED`. | Problem scored 0 for that test case. |
-| **Runtime Exception / Crash** | User Error | Script exits with non-zero code, worker captures stack trace, marks `RUNTIME_ERROR`. | User sees error summary. |
-| **Sandbox Engine Crash** | System Error | Worker catches infrastructure exception, retries up to 2 times. If still failing, marks `SYSTEM_ERROR`. | User is not penalized; can re-trigger run. |
-| **Worker Process Killed** | System Error | Stale job reaper resets `RUNNING` job to `QUEUED` after 5 minutes. | Job picked up by restarted worker. |
-| **Network Interruption** | System Error | Client retries polling with exponential backoff. | Result displayed when connection restored. |
-
----
-
-## 15. Security Boundaries & Trust Zones
-
-```
-┌──────────────────────────────────────────────────────────────────┐
-│ TRUST ZONE 0: Untrusted External Zone (User Browser / Client)     │
-│ - Raw code input, untrusted HTTP payloads                        │
-└─────────────────────────────────┬────────────────────────────────┘
-                                  │ HTTP / TLS (JWT Bearer)
-┌─────────────────────────────────▼────────────────────────────────┐
-│ TRUST ZONE 1: Trusted Web DMZ (FastAPI Application)              │
-│ - JWT Authentication, Pydantic 64KB Validator, Route Handler    │
-└─────────────────────────────────┬────────────────────────────────┘
-                                  │ Internal Network
-┌─────────────────────────────────▼────────────────────────────────┐
-│ TRUST ZONE 2: Trusted Data Core (MongoDB Database)               │
-│ - Curated Questions, Test Cases, Job Queue, Execution Results    │
-└─────────────────────────────────┬────────────────────────────────┘
-                                  │ Atomic Poll / Claim
-┌─────────────────────────────────▼────────────────────────────────┐
-│ TRUST ZONE 3: Trusted Dispatcher (Judge Worker Daemon)           │
-│ - Job Scheduler, Test Input Feeder, Output Comparator            │
-└─────────────────────────────────┬────────────────────────────────┘
-                                  │ Linux cgroups / nsjail boundary
-┌─────────────────────────────────▼────────────────────────────────┐
-│ TRUST ZONE 4: Zero-Trust Hostile Sandbox (Unprivileged Runner)    │
-│ - UID 10001 (nobody), --network none, Read-Only Root, 16MB Tmpfs │
-│ - Hostile Python / C++ Program Execution                         │
-└──────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 16. Windows Development Strategy
-
-A developer working on PrepForge on Windows must **never** execute untrusted user submissions directly on their host OS.
+## 19. Windows Development Strategy
 
 ```
                     DEVELOPER WORKFLOW ON WINDOWS
@@ -539,23 +502,16 @@ Mode A: Mock Engine (Default)             Mode B: Docker Desktop (Optional)
 - 100% safe for standard UI/API work      - Used for end-to-end sandbox tests
 ```
 
-1. **Mode A — Default Mock Judge (Fast & Safe):**
-   - In development mode (`ENVIRONMENT=development`), the Judge Worker uses a `MockExecutionEngine`.
-   - Returns deterministic simulated execution results (e.g. `ACCEPTED` after a 500ms delay) without compiling or executing user code on Windows.
-   - Allows full UI, dashboard, attempt history, and API development with zero host risk.
-2. **Mode B — WSL2 / Docker Engine (Sandbox Testing):**
-   - When integration testing of the actual compiler/sandbox is required on Windows, development runs entirely inside Docker Desktop backed by the WSL2 Linux kernel.
+- **Mode A (Default Mock Engine):** When developing on Windows, the Judge Worker runs a simulated execution mock returning deterministic results after a short delay. No user code runs on Windows.
+- **Mode B (WSL2 / Docker Desktop):** Full compiler and cgroup sandbox integration testing runs inside Docker Desktop powered by the WSL2 Linux kernel.
 
 ---
 
-## 17. Linux Deployment Strategy (Self-Hostable)
+## 20. Linux / Deployment Strategy
 
-### 17.1 Docker Compose Deployment Model
-For a self-hosted Linux VPS ($5–$10/month, 1–2 vCPUs, 2 GB RAM):
-
+### 20.1 Single-Node Docker Compose ($5–$10/mo VPS)
 ```yaml
 version: '3.8'
-
 services:
   prepforge-backend:
     build: ./backend
@@ -567,9 +523,7 @@ services:
       - mongo
 
   prepforge-judge-worker:
-    build:
-      context: ./judge-worker
-      dockerfile: Dockerfile
+    build: ./judge-worker
     restart: always
     environment:
       - MONGODB_URL=mongodb://mongo:27017/prepforge
@@ -598,15 +552,13 @@ volumes:
   mongo_data:
 ```
 
-### 17.2 Unsuitable Environments
-- **Unsuitable:** Shared cPanel web hosting, serverless edge functions (Vercel/Netlify for backend execution), Windows Server hosts without WSL2/Docker isolation.
-- **Suitable:** Linux VPS (Ubuntu 22.04/24.04, Debian 12), Dedicated Linux instances, Docker Compose environments.
+### 20.2 Environment Classification
+- **Suitable:** Linux VPS (Ubuntu 22.04/24.04, Debian 12), Dedicated Linux servers, Docker Compose environments.
+- **Unsuitable:** Shared cPanel hosts, serverless edge runtimes (Vercel/Netlify for backend), Windows Server without WSL2/Docker isolation.
 
 ---
 
-## 18. Future Database Schema & Data Models
-
-The future sandbox integration will introduce 4 new collections that seamlessly connect with the existing foundation:
+## 21. Future Database Model
 
 ```
 Existing Foundation:
@@ -621,70 +573,53 @@ Future Judge Integration:
 [coding_assessment_attempts] ──> [coding_execution_jobs] ──> [coding_execution_results]
 ```
 
-### 18.1 Collection Overview
-
-1. `coding_test_cases`:
-   - Parent: `coding_problems`
-   - Fields: `id`, `problem_id`, `order`, `input`, `expected_output`, `is_hidden`, `time_limit_ms`, `memory_limit_mb`.
-2. `coding_execution_jobs`:
-   - Parent: `coding_assessment_attempts`
-   - Fields: `id`, `attempt_id`, `problem_id`, `user_id`, `code`, `language`, `status` (`QUEUED`, `RUNNING`, `COMPLETED`, `FAILED`), `created_at`, `claimed_at`, `completed_at`.
-3. `coding_execution_results`:
-   - Parent: `coding_execution_jobs`
-   - Fields: `id`, `job_id`, `attempt_id`, `problem_id`, `user_id`, `verdict`, `passed_test_cases`, `total_test_cases`, `score_awarded`, `execution_time_ms`, `peak_memory_mb`, `compiler_output`, `test_case_results`, `created_at`.
-4. `coding_assessment_attempts` (Existing):
-   - Updated upon job completion to store authoritative `score`, `percentage`, `passed`, and problem-level verdicts.
+- `coding_test_cases`: Test cases linked to `coding_problems`.
+- `coding_execution_jobs`: Asynchronous jobs linked to attempts.
+- `coding_execution_results`: Detailed evaluation records with metrics.
+- `coding_assessment_attempts`: Receives calculated scores upon submission.
 
 ---
 
-## 19. Weakness Integration Workflow
-
-The future judge integrates with the existing Weakness Manager following the established **explicit user-confirmation principle**:
+## 22. Weakness Integration
 
 ```
-[Judge Completes Evaluation]
+[Judge Evaluation Completed]
              │
              ▼
-[Attempt Review Screen Displays Failed Problems]
-(e.g., Problem 2: Longest Substring — WRONG_ANSWER)
+[User Reviews Results Screen]
              │
              ▼
-[User Clicks "Add to Weaknesses" Button]
+[User Clicks "Add to Weaknesses" on Failed Problem]
              │
              ▼
 [Modal: Select Priority (HIGH/MED/LOW) & Review Date]
              │
              ▼
-[POST /api/v1/weaknesses]
-- source_type: "CODING_ASSESSMENT"
-- topic: "Sliding Window"
-- title: "Longest Substring with At Most K Distinct Characters"
+[POST /api/v1/weaknesses (source_type: "CODING_ASSESSMENT")]
              │
              ▼
-[Weakness Tracked in Weakness Manager & Weekly Review]
+[Tracked in Weakness Manager & Weekly Review]
 ```
 
-**Key Invariant:** Zero automated weakness records are created without explicit user action. This prevents spamming the user's weakness board when exploring experimental code attempts.
+**Key Invariant:** Zero automated weaknesses created without explicit user confirmation.
 
 ---
 
-## 20. Explicit Non-Goals (Out of Scope for MVP)
+## 23. Security Risks & Mitigations
 
-To maintain focus and avoid over-engineering, the following capabilities are explicitly **excluded** from the MVP sandbox design:
-1. **No Interactive / Graphical Execution:** No support for GUI libraries (`tkinter`, `pygame`), interactive terminal input loops (beyond pre-fed stdin), or web servers.
-2. **No Multi-File Projects / Build Systems:** No support for multi-file C++ projects, CMake, Makefiles, or arbitrary package installations (`pip install`, `vcpkg`).
+1. **Kernel 0-Day Container Escapes:**
+   - *Mitigation:* Combine unprivileged user namespaces (`UID 10001`), `seccomp` system call filters, read-only rootfs, and dropped capabilities (`CAP_DROP_ALL`).
+2. **CPU Contention / Timing Jitter on Low-Tier VPS:**
+   - *Mitigation:* Apply CPU quota limits (`cpu.max = 100000 100000`) and configure generous default time limits (2.0s) with wall-clock supervisor padding (3.0s).
+3. **Queue Flooding:**
+   - *Mitigation:* Enforce 1 active attempt per user and throttle submission frequency.
+
+---
+
+## 24. Explicit Non-Goals (Out of Scope for MVP)
+
+1. **No Interactive / Graphical Execution:** No support for GUI libraries (`tkinter`), interactive stdin REPLs, or web sockets.
+2. **No Multi-File Projects / Build Systems:** No support for CMake, Makefiles, or arbitrary package installations (`pip install`).
 3. **No GPU Acceleration:** No CUDA or GPU runtime support.
-4. **No Complex Multi-Cloud Orchestration:** No Kubernetes or distributed worker meshes; a single-node Linux worker daemon is the target.
-5. **No Live Debugging REPL:** No interactive `gdb` or `pdb` step-through sessions.
-6. **No AI Code Autogeneration:** The sandbox evaluates deterministic human code against deterministic test cases without generative AI in the execution loop.
-
----
-
-## 21. Summary & Roadmap
-
-| Phase | Status | Milestone Focus |
-| :--- | :--- | :--- |
-| **Phase 1** | **COMPLETED** | Timed Coding Assessment Foundation (Schemas, 10 Problems, 2 Week 11 Assessments, No-Execution Plaintext Storage, 83 Tests Passing). |
-| **Phase 2** | **COMPLETED (Current)** | Coding Judge & Sandbox Architecture Design (`docs/coding-judge-architecture.md`). |
-| **Phase 3** | **FUTURE** | Sandbox Implementation (Decoupled Worker, Linux nsjail/Docker runner, Test Case Engine, Scoring Evaluation). |
-| **Phase 4** | **FUTURE** | Mock Interview Simulation Engine & Final Drive Integration. |
+4. **No Multi-Cloud Orchestration:** No Kubernetes or distributed worker meshes.
+5. **No AI Code Autogeneration:** Deterministic evaluation of human code against deterministic test cases only.
