@@ -9,7 +9,7 @@ ASSESSMENTS_SEED = [
         "id": "baseline-assessment",
         "title": "Comprehensive Baseline Assessment",
         "description": "Evaluate foundational readiness across Core CS, Algorithms, SQL, and System Concepts before diving into the 12-week roadmap.",
-        "week_number": None,
+        "week_number": 1,
         "assessment_type": "BASELINE",
         "duration_minutes": 30,
         "question_count": 10,
@@ -18,8 +18,8 @@ ASSESSMENTS_SEED = [
     },
     {
         "id": "week-3-quiz",
-        "title": "Week 3 Mastery Quiz: Arrays, Pointers & SQL Basics",
-        "description": "Test your mastery of two-pointer techniques, sliding windows, prefix sums, bitwise basics, and SQL querying.",
+        "title": "Week 3 Mastery Quiz: Sliding Window, Linked Lists, Stacks & Normalization",
+        "description": "Evaluate mastery of sliding window techniques, binary search, linked structures, stacks, queues, SQL subqueries, and database normalization.",
         "week_number": 3,
         "assessment_type": "QUIZ",
         "duration_minutes": 30,
@@ -29,8 +29,8 @@ ASSESSMENTS_SEED = [
     },
     {
         "id": "week-5-quiz",
-        "title": "Week 5 Mastery Quiz: Linked Lists, Stacks & DBMS",
-        "description": "Assess deep conceptual knowledge of Linked List manipulations, Monotonic Stacks, Recursion, and Database Transactions.",
+        "title": "Week 5 Mastery Quiz: Trees, Window Functions, Indexing & OS Processes",
+        "description": "Assess deep conceptual knowledge of Binary Trees, BSTs, SQL Window Functions, B+ Tree Indexing, and OS Process Scheduling.",
         "week_number": 5,
         "assessment_type": "QUIZ",
         "duration_minutes": 30,
@@ -40,8 +40,8 @@ ASSESSMENTS_SEED = [
     },
     {
         "id": "week-7-quiz",
-        "title": "Week 7 Mastery Quiz: Trees, Heaps & Operating Systems",
-        "description": "Evaluate binary tree traversals, BST properties, Min/Max Heap operations, and OS Process/Thread synchronization.",
+        "title": "Week 7 Mastery Quiz: Recursion, Backtracking, Networks & Architecture",
+        "description": "Test recursion, backtracking, graph traversals, networking protocols (DNS/DHCP/ARP/HTTPS), pipelining, and Git/Testing.",
         "week_number": 7,
         "assessment_type": "QUIZ",
         "duration_minutes": 30,
@@ -51,8 +51,8 @@ ASSESSMENTS_SEED = [
     },
     {
         "id": "week-9-quiz",
-        "title": "Week 9 Mastery Quiz: Graphs, Intro DP & Networks",
-        "description": "Test graph traversals, shortest path algorithms, dynamic programming fundamentals, and networking protocols.",
+        "title": "Week 9 Mastery Quiz: Machine Learning Fundamentals & Algorithms",
+        "description": "Assess core supervised and unsupervised algorithms, overfitting/underfitting, cross-validation, decision trees, ensemble methods, and ML evaluation metrics.",
         "week_number": 9,
         "assessment_type": "QUIZ",
         "duration_minutes": 30,
@@ -64,7 +64,7 @@ ASSESSMENTS_SEED = [
 
 QUESTIONS_SEED = [
     # -------------------------------------------------------------
-    # 1. BASELINE ASSESSMENT (10 Questions)
+    # 1. BASELINE ASSESSMENT (Week 1 — 10 Questions)
     # -------------------------------------------------------------
     {
         "id": "base-q1",
@@ -223,26 +223,12 @@ QUESTIONS_SEED = [
     },
 
     # -------------------------------------------------------------
-    # 2. WEEK 3 QUIZ: Arrays, Pointers & SQL Basics (10 Questions)
+    # 2. WEEK 3 QUIZ: Sliding Window, Linked Lists, Stacks & Normalization (10 Questions)
     # -------------------------------------------------------------
     {
         "id": "w3-q1",
         "assessment_id": "week-3-quiz",
         "question_number": 1,
-        "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Two Pointers",
-        "difficulty": "EASY",
-        "question": "Given a sorted array, what is the time complexity to find if two numbers sum to target T using two pointers?",
-        "options": ["O(1)", "O(log N)", "O(N)", "O(N^2)"],
-        "correct_answer": "O(N)",
-        "explanation": "With one pointer at index 0 and one at N-1, each step increments the left or decrements the right pointer, scanning the array in linear O(N) time.",
-        "marks": 1
-    },
-    {
-        "id": "w3-q2",
-        "assessment_id": "week-3-quiz",
-        "question_number": 2,
         "question_type": "MCQ",
         "category": "DSA",
         "topic": "Sliding Window",
@@ -254,103 +240,9 @@ QUESTIONS_SEED = [
         "marks": 1
     },
     {
-        "id": "w3-q3",
+        "id": "w3-q2",
         "assessment_id": "week-3-quiz",
-        "question_number": 3,
-        "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Prefix Sum",
-        "difficulty": "EASY",
-        "question": "After building a prefix sum array `P` of size N in O(N) preprocessing time, what is the query time to compute `sum(arr[L..R])`?",
-        "options": ["O(1)", "O(R - L)", "O(log N)", "O(N)"],
-        "correct_answer": "O(1)",
-        "explanation": "Range sum `sum(arr[L..R])` is computed directly in O(1) as `P[R] - P[L - 1]` (with 0-based bounds handling).",
-        "marks": 1
-    },
-    {
-        "id": "w3-q4",
-        "assessment_id": "week-3-quiz",
-        "question_number": 4,
-        "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Kadane's Algorithm",
-        "difficulty": "MEDIUM",
-        "question": "In Kadane's Algorithm for Maximum Subarray Sum, what is the state transition at each element `x` with `current_sum`?",
-        "options": [
-            "current_sum = max(0, current_sum + x)",
-            "current_sum = max(x, current_sum + x)",
-            "current_sum = current_sum * x",
-            "current_sum = max(current_sum, x)"
-        ],
-        "correct_answer": "current_sum = max(x, current_sum + x)",
-        "explanation": "At each element x, we decide whether to extend the existing contiguous subarray (`current_sum + x`) or start a fresh subarray at `x`.",
-        "marks": 1
-    },
-    {
-        "id": "w3-q5",
-        "assessment_id": "week-3-quiz",
-        "question_number": 5,
-        "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Bit Manipulation",
-        "difficulty": "EASY",
-        "question": "In an array where every element appears twice except one unique element, which operation finds the unique element in O(N) time and O(1) auxiliary space?",
-        "options": ["Bitwise AND (&)", "Bitwise OR (|)", "Bitwise XOR (^)", "Bitwise NOT (~)"],
-        "correct_answer": "Bitwise XOR (^)",
-        "explanation": "Since `x ^ x = 0` and `x ^ 0 = x`, XORing all elements cancels duplicate pairs, leaving only the unique element.",
-        "marks": 1
-    },
-    {
-        "id": "w3-q6",
-        "assessment_id": "week-3-quiz",
-        "question_number": 6,
-        "question_type": "MCQ",
-        "category": "SQL",
-        "topic": "Aggregation & Filtering",
-        "difficulty": "EASY",
-        "question": "Which SQL clause is used to filter groups created by `GROUP BY` based on aggregate conditions?",
-        "options": ["WHERE", "HAVING", "ORDER BY", "FILTER"],
-        "correct_answer": "HAVING",
-        "explanation": "The `HAVING` clause filters aggregated results produced by `GROUP BY`, whereas `WHERE` filters individual rows prior to grouping.",
-        "marks": 1
-    },
-    {
-        "id": "w3-q7",
-        "assessment_id": "week-3-quiz",
-        "question_number": 7,
-        "question_type": "MCQ",
-        "category": "SQL",
-        "topic": "Aggregate Functions",
-        "difficulty": "EASY",
-        "question": "What is the difference between `COUNT(*)` and `COUNT(column_name)` in SQL?",
-        "options": [
-            "COUNT(*) counts all rows including NULLs; COUNT(col) ignores rows where col is NULL",
-            "COUNT(*) is slower and only counts non-NULL rows",
-            "COUNT(col) counts duplicate values only once",
-            "They are identical in all SQL engines"
-        ],
-        "correct_answer": "COUNT(*) counts all rows including NULLs; COUNT(col) ignores rows where col is NULL",
-        "explanation": "`COUNT(*)` returns total row count regardless of nullability, while `COUNT(column_name)` counts only rows where `column_name IS NOT NULL`.",
-        "marks": 1
-    },
-    {
-        "id": "w3-q8",
-        "assessment_id": "week-3-quiz",
-        "question_number": 8,
-        "question_type": "MCQ",
-        "category": "SQL",
-        "topic": "Execution Order",
-        "difficulty": "MEDIUM",
-        "question": "In standard SQL query execution, which step executes before `SELECT`?",
-        "options": ["ORDER BY", "LIMIT", "WHERE and GROUP BY", "DISTINCT"],
-        "correct_answer": "WHERE and GROUP BY",
-        "explanation": "Logical SQL order is: FROM -> WHERE -> GROUP BY -> HAVING -> SELECT -> DISTINCT -> ORDER BY -> LIMIT.",
-        "marks": 1
-    },
-    {
-        "id": "w3-q9",
-        "assessment_id": "week-3-quiz",
-        "question_number": 9,
+        "question_number": 2,
         "question_type": "MCQ",
         "category": "DSA",
         "topic": "Binary Search",
@@ -367,32 +259,9 @@ QUESTIONS_SEED = [
         "marks": 1
     },
     {
-        "id": "w3-q10",
+        "id": "w3-q3",
         "assessment_id": "week-3-quiz",
-        "question_number": 10,
-        "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Array Manipulation",
-        "difficulty": "MEDIUM",
-        "question": "To rotate an array of size N to the right by K positions in O(1) space, what sequence of reverse operations is optimal?",
-        "options": [
-            "Reverse whole array, reverse first K elements, reverse remaining N-K elements",
-            "Reverse first N-K elements, reverse whole array, reverse first K elements",
-            "Reverse first K elements, reverse last K elements",
-            "Rotate one-by-one K times"
-        ],
-        "correct_answer": "Reverse whole array, reverse first K elements, reverse remaining N-K elements",
-        "explanation": "Reversing the entire array, then reversing `[0..K-1]` and `[K..N-1]` achieves rotation in O(N) time and O(1) space.",
-        "marks": 1
-    },
-
-    # -------------------------------------------------------------
-    # 3. WEEK 5 QUIZ: Linked Lists, Stacks & DBMS (10 Questions)
-    # -------------------------------------------------------------
-    {
-        "id": "w5-q1",
-        "assessment_id": "week-5-quiz",
-        "question_number": 1,
+        "question_number": 3,
         "question_type": "MCQ",
         "category": "DSA",
         "topic": "Linked Lists",
@@ -400,18 +269,18 @@ QUESTIONS_SEED = [
         "question": "What is the space complexity of Floyd's Tortoise and Hare algorithm for detecting cycles in a singly linked list?",
         "options": ["O(1)", "O(N)", "O(log N)", "O(N^2)"],
         "correct_answer": "O(1)",
-        "explanation": "Floyd's algorithm uses only two pointer variables (slow and fast), requiring O(1) auxiliary memory.",
+        "explanation": "Floyd's cycle detection algorithm uses only two pointer variables (slow and fast), requiring O(1) auxiliary memory.",
         "marks": 1
     },
     {
-        "id": "w5-q2",
-        "assessment_id": "week-5-quiz",
-        "question_number": 2,
+        "id": "w3-q4",
+        "assessment_id": "week-3-quiz",
+        "question_number": 4,
         "question_type": "MCQ",
         "category": "DSA",
         "topic": "Linked Lists",
         "difficulty": "EASY",
-        "question": "When iteratively reversing a singly linked list with pointers `prev`, `curr`, `next_node`, what is the correct pointer update inside the loop?",
+        "question": "When iteratively reversing a singly linked list with pointers `prev`, `curr`, `next_node`, what is the correct pointer update sequence inside the loop?",
         "options": [
             "next_node = curr.next; curr.next = prev; prev = curr; curr = next_node",
             "curr.next = prev; next_node = curr.next; prev = curr; curr = next_node",
@@ -423,9 +292,23 @@ QUESTIONS_SEED = [
         "marks": 1
     },
     {
-        "id": "w5-q3",
-        "assessment_id": "week-5-quiz",
-        "question_number": 3,
+        "id": "w3-q5",
+        "assessment_id": "week-3-quiz",
+        "question_number": 5,
+        "question_type": "MCQ",
+        "category": "DSA",
+        "topic": "Stacks",
+        "difficulty": "EASY",
+        "question": "Which data structure is ideally suited to validate matched pairs of nested brackets like `{[()]}` in O(N) time?",
+        "options": ["Queue", "Stack", "Min Heap", "Binary Search Tree"],
+        "correct_answer": "Stack",
+        "explanation": "A Stack matches open brackets against closing brackets by matching the most recently opened symbol first (LIFO property).",
+        "marks": 1
+    },
+    {
+        "id": "w3-q6",
+        "assessment_id": "week-3-quiz",
+        "question_number": 6,
         "question_type": "MCQ",
         "category": "DSA",
         "topic": "Monotonic Stack",
@@ -437,28 +320,9 @@ QUESTIONS_SEED = [
         "marks": 1
     },
     {
-        "id": "w5-q4",
-        "assessment_id": "week-5-quiz",
-        "question_number": 4,
-        "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Stacks",
-        "difficulty": "MEDIUM",
-        "question": "How can a Min-Stack support `push()`, `pop()`, and `getMin()` in O(1) time complexity?",
-        "options": [
-            "Sort the stack after every push operation",
-            "Maintain an auxiliary stack tracking the running minimum at each element level",
-            "Traverse elements on every getMin() call",
-            "Use a binary search tree instead of a stack"
-        ],
-        "correct_answer": "Maintain an auxiliary stack tracking the running minimum at each element level",
-        "explanation": "Maintaining an auxiliary min-stack (or storing pairs `(val, current_min)`) allows retrieving the minimum in O(1) time.",
-        "marks": 1
-    },
-    {
-        "id": "w5-q5",
-        "assessment_id": "week-5-quiz",
-        "question_number": 5,
+        "id": "w3-q7",
+        "assessment_id": "week-3-quiz",
+        "question_number": 7,
         "question_type": "MCQ",
         "category": "DSA",
         "topic": "Queues",
@@ -470,17 +334,163 @@ QUESTIONS_SEED = [
         "marks": 1
     },
     {
+        "id": "w3-q8",
+        "assessment_id": "week-3-quiz",
+        "question_number": 8,
+        "question_type": "MCQ",
+        "category": "SQL",
+        "topic": "Subqueries",
+        "difficulty": "MEDIUM",
+        "question": "What distinguishes a Correlated Subquery from an independent subquery in SQL?",
+        "options": [
+            "A correlated subquery executes once for the entire query, while independent subqueries run per row",
+            "A correlated subquery references columns from the outer query and re-evaluates for each candidate row",
+            "A correlated subquery can only return scalar numeric constants",
+            "A correlated subquery requires an explicit UNION operator"
+        ],
+        "correct_answer": "A correlated subquery references columns from the outer query and re-evaluates for each candidate row",
+        "explanation": "A correlated subquery depends on the outer query for its values and must be evaluated repeatedly for each row processed by the outer query.",
+        "marks": 1
+    },
+    {
+        "id": "w3-q9",
+        "assessment_id": "week-3-quiz",
+        "question_number": 9,
+        "question_type": "MCQ",
+        "category": "DBMS",
+        "topic": "Normalization",
+        "difficulty": "MEDIUM",
+        "question": "A table is in Second Normal Form (2NF) if it is in 1NF and satisfies which additional rule?",
+        "options": [
+            "Every non-prime attribute is fully functionally dependent on the entire primary key (no partial dependencies)",
+            "There are no transitive dependencies between non-prime attributes",
+            "Every determinant is a candidate key (BCNF condition)",
+            "No multi-valued dependencies exist in the table"
+        ],
+        "correct_answer": "Every non-prime attribute is fully functionally dependent on the entire primary key (no partial dependencies)",
+        "explanation": "2NF requires removing partial dependencies, meaning non-prime attributes must depend on the whole primary key, not just a subset of a composite key.",
+        "marks": 1
+    },
+    {
+        "id": "w3-q10",
+        "assessment_id": "week-3-quiz",
+        "question_number": 10,
+        "question_type": "MCQ",
+        "category": "DBMS",
+        "topic": "Transactions & ACID",
+        "difficulty": "EASY",
+        "question": "In database transaction management, what does the 'Atomicity' property guarantee?",
+        "options": [
+            "All operations within a transaction execute completely or none are applied (all-or-nothing)",
+            "Transactions execute concurrently without interfering with each other",
+            "Database state strictly satisfies all schema integrity constraints after commit",
+            "Committed data is immediately mirrored across multiple disk arrays"
+        ],
+        "correct_answer": "All operations within a transaction execute completely or none are applied (all-or-nothing)",
+        "explanation": "Atomicity ensures that a transaction is treated as a single indivisible unit: either all its modifications take effect or none do.",
+        "marks": 1
+    },
+
+    # -------------------------------------------------------------
+    # 3. WEEK 5 QUIZ: Trees, Window Functions, Indexing & OS Processes (10 Questions)
+    # -------------------------------------------------------------
+    {
+        "id": "w5-q1",
+        "assessment_id": "week-5-quiz",
+        "question_number": 1,
+        "question_type": "MCQ",
+        "category": "DSA",
+        "topic": "Binary Trees",
+        "difficulty": "EASY",
+        "question": "Which tree traversal produces keys in strictly ascending sorted order when executed on a valid Binary Search Tree (BST)?",
+        "options": ["Preorder Traversal", "Inorder Traversal", "Postorder Traversal", "Level-order Traversal"],
+        "correct_answer": "Inorder Traversal",
+        "explanation": "Inorder traversal (Left -> Node -> Right) on a BST processes nodes in non-decreasing sorted order.",
+        "marks": 1
+    },
+    {
+        "id": "w5-q2",
+        "assessment_id": "week-5-quiz",
+        "question_number": 2,
+        "question_type": "MCQ",
+        "category": "DSA",
+        "topic": "Binary Trees",
+        "difficulty": "MEDIUM",
+        "question": "In a BST, if both target nodes `p` and `q` have values strictly smaller than `root.val`, where is their Lowest Common Ancestor (LCA)?",
+        "options": [
+            "At root itself",
+            "In the root.left subtree",
+            "In the root.right subtree",
+            "Undefined"
+        ],
+        "correct_answer": "In the root.left subtree",
+        "explanation": "By BST properties, all values strictly smaller than `root.val` reside exclusively in the left subtree, so the LCA must be in `root.left`.",
+        "marks": 1
+    },
+    {
+        "id": "w5-q3",
+        "assessment_id": "week-5-quiz",
+        "question_number": 3,
+        "question_type": "MCQ",
+        "category": "DSA",
+        "topic": "Binary Trees",
+        "difficulty": "EASY",
+        "question": "What is the recursive formula for calculating the maximum height (depth) of a binary tree rooted at `node`?",
+        "options": [
+            "height(node) = height(node.left) + height(node.right)",
+            "height(node) = 1 + max(height(node.left), height(node.right))",
+            "height(node) = 1 + min(height(node.left), height(node.right))",
+            "height(node) = max(height(node.left), height(node.right))"
+        ],
+        "correct_answer": "height(node) = 1 + max(height(node.left), height(node.right))",
+        "explanation": "The height of a tree node is 1 (for the current node) plus the maximum depth of its left and right subtrees.",
+        "marks": 1
+    },
+    {
+        "id": "w5-q4",
+        "assessment_id": "week-5-quiz",
+        "question_number": 4,
+        "question_type": "MCQ",
+        "category": "DSA",
+        "topic": "Binary Search Trees",
+        "difficulty": "MEDIUM",
+        "question": "What is the worst-case time complexity of searching for a value in an unbalanced Binary Search Tree with N nodes?",
+        "options": ["O(1)", "O(log N)", "O(N)", "O(N log N)"],
+        "correct_answer": "O(N)",
+        "explanation": "In the worst case (e.g., skewed tree like a linked list), searching an unbalanced BST takes O(N) linear time.",
+        "marks": 1
+    },
+    {
+        "id": "w5-q5",
+        "assessment_id": "week-5-quiz",
+        "question_number": 5,
+        "question_type": "MCQ",
+        "category": "SQL",
+        "topic": "Window Functions",
+        "difficulty": "MEDIUM",
+        "question": "How does `DENSE_RANK()` differ from `RANK()` when ranking rows with identical values in SQL?",
+        "options": [
+            "DENSE_RANK() skips rank numbers after a tie (e.g. 1, 2, 2, 4), while RANK() does not skip (1, 2, 2, 3)",
+            "DENSE_RANK() does not skip rank numbers after a tie (e.g. 1, 2, 2, 3), while RANK() skips (1, 2, 2, 4)",
+            "DENSE_RANK() only works on unique numeric columns",
+            "RANK() is an aggregate function, whereas DENSE_RANK() cannot use OVER()"
+        ],
+        "correct_answer": "DENSE_RANK() does not skip rank numbers after a tie (e.g. 1, 2, 2, 3), while RANK() skips (1, 2, 2, 4)",
+        "explanation": "`RANK()` leaves gaps in the ranking sequence following tied values, whereas `DENSE_RANK()` produces consecutive integers without gaps.",
+        "marks": 1
+    },
+    {
         "id": "w5-q6",
         "assessment_id": "week-5-quiz",
         "question_number": 6,
         "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Recursion",
+        "category": "SQL",
+        "topic": "Window Functions",
         "difficulty": "EASY",
-        "question": "What happens if a recursive function does not define or reach a valid base case?",
-        "options": ["It returns null", "Stack Overflow Error due to infinite recursive call frames", "Heap corruption", "O(1) premature termination"],
-        "correct_answer": "Stack Overflow Error due to infinite recursive call frames",
-        "explanation": "Without a terminating base case, recursive calls consume execution call stack memory until the call stack limit is exceeded.",
+        "question": "Which SQL window function allows accessing data from a subsequent row without performing a self-join?",
+        "options": ["LAG()", "LEAD()", "FIRST_VALUE()", "NTILE()"],
+        "correct_answer": "LEAD()",
+        "explanation": "`LEAD()` provides access to a subsequent row at a specified physical offset, while `LAG()` accesses preceding rows.",
         "marks": 1
     },
     {
@@ -491,15 +501,15 @@ QUESTIONS_SEED = [
         "category": "DBMS",
         "topic": "Indexing",
         "difficulty": "MEDIUM",
-        "question": "Why are B+ Trees preferred over Binary Search Trees for relational database disk indexing?",
+        "question": "Why are B+ Trees preferred over standard Binary Search Trees for relational database disk indexing?",
         "options": [
-            "B+ Trees have higher branching factor and shallow height, minimizing disk I/O operations",
-            "B+ Trees only store data in memory and never touch disk",
-            "Binary Search Trees cannot support range queries",
+            "B+ Trees have a high branching factor, keeping tree height shallow (3-4 levels) to minimize disk I/O reads",
+            "B+ Trees only reside in memory and never persist to disk",
+            "Binary Search Trees cannot support equality searches",
             "B+ Trees store duplicate keys without any pointer overhead"
         ],
-        "correct_answer": "B+ Trees have higher branching factor and shallow height, minimizing disk I/O operations",
-        "explanation": "A high fan-out (branching factor) keeps the B+ tree height very low (3-4 levels), dramatically reducing expensive disk block reads.",
+        "correct_answer": "B+ Trees have a high branching factor, keeping tree height shallow (3-4 levels) to minimize disk I/O reads",
+        "explanation": "A high fan-out keeps the B+ tree depth very low, dramatically reducing expensive disk page I/O operations.",
         "marks": 1
     },
     {
@@ -510,10 +520,10 @@ QUESTIONS_SEED = [
         "category": "DBMS",
         "topic": "Indexing",
         "difficulty": "MEDIUM",
-        "question": "How many Clustered Indexes can a single relational table have?",
-        "options": ["Only 1", "Up to 16", "Unlimited", "Zero"],
-        "correct_answer": "Only 1",
-        "explanation": "A Clustered Index dictates the physical ordering of records in storage. Because physical data can only be sorted in one order, a table can have only one clustered index.",
+        "question": "How many Clustered Indexes can exist on a single table in a relational database?",
+        "options": ["Exactly 1", "Up to 16", "Unlimited", "Zero"],
+        "correct_answer": "Exactly 1",
+        "explanation": "A Clustered Index defines the physical sorting order of table rows on disk. Since data can only be physically stored in one sequence, only 1 clustered index is permitted per table.",
         "marks": 1
     },
     {
@@ -521,13 +531,13 @@ QUESTIONS_SEED = [
         "assessment_id": "week-5-quiz",
         "question_number": 9,
         "question_type": "MCQ",
-        "category": "DBMS",
-        "topic": "Transaction Isolation",
-        "difficulty": "MEDIUM",
-        "question": "What concurrency phenomenon occurs when a transaction reads uncommitted changes written by another concurrent transaction that subsequently rolls back?",
-        "options": ["Dirty Read", "Non-Repeatable Read", "Phantom Read", "Lost Update"],
-        "correct_answer": "Dirty Read",
-        "explanation": "A Dirty Read occurs when Transaction A reads data modified by Transaction B before B has committed, and B eventually aborts.",
+        "category": "OS",
+        "topic": "Processes & Threads",
+        "difficulty": "EASY",
+        "question": "Which memory segment is shared among all threads belonging to the same process?",
+        "options": ["Stack memory", "Registers and Program Counter", "Heap and Data/Code segment", "Thread Local Storage"],
+        "correct_answer": "Heap and Data/Code segment",
+        "explanation": "Threads of the same process share the virtual address space (Heap, global variables, code segment, and file descriptors), but maintain independent execution Stacks.",
         "marks": 1
     },
     {
@@ -535,18 +545,18 @@ QUESTIONS_SEED = [
         "assessment_id": "week-5-quiz",
         "question_number": 10,
         "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Stacks",
-        "difficulty": "EASY",
-        "question": "Which data structure is ideally suited to validate matched pairs of parentheses like `{[()]}`?",
-        "options": ["Queue", "Stack", "Min Heap", "Hash Table only"],
-        "correct_answer": "Stack",
-        "explanation": "A Stack matches open brackets against closing brackets by matching the most recently opened symbol first (LIFO property).",
+        "category": "OS",
+        "topic": "CPU Scheduling & Context Switching",
+        "difficulty": "MEDIUM",
+        "question": "Where does the Operating System kernel store the CPU registers and Program Counter during a process context switch?",
+        "options": ["Process Control Block (PCB)", "File Allocation Table (FAT)", "Translation Lookaside Buffer (TLB)", "Direct Memory Access (DMA) buffer"],
+        "correct_answer": "Process Control Block (PCB)",
+        "explanation": "The PCB (Process Control Block) preserves all state information (CPU registers, PC, stack pointer, priority) so the process can resume execution seamlessly.",
         "marks": 1
     },
 
     # -------------------------------------------------------------
-    # 4. WEEK 7 QUIZ: Trees, Heaps & Operating Systems (10 Questions)
+    # 4. WEEK 7 QUIZ: Recursion, Backtracking, Networks & Architecture (10 Questions)
     # -------------------------------------------------------------
     {
         "id": "w7-q1",
@@ -554,12 +564,17 @@ QUESTIONS_SEED = [
         "question_number": 1,
         "question_type": "MCQ",
         "category": "DSA",
-        "topic": "Trees",
+        "topic": "Recursion",
         "difficulty": "EASY",
-        "question": "Which tree traversal produces elements in strictly ascending order when executed on a valid Binary Search Tree (BST)?",
-        "options": ["Preorder Traversal", "Inorder Traversal", "Postorder Traversal", "Level-order Traversal"],
-        "correct_answer": "Inorder Traversal",
-        "explanation": "Inorder traversal (Left -> Node -> Right) visits BST elements in non-decreasing sorted order.",
+        "question": "What is the primary cause of a 'Stack Overflow' error during execution of a recursive function?",
+        "options": [
+            "Missing or unreachable base case causing infinite call frame allocations on the execution stack",
+            "Exceeding allocated heap dynamic memory",
+            "Accessing an array index out of bounds",
+            "Failure to compile bytecode"
+        ],
+        "correct_answer": "Missing or unreachable base case causing infinite call frame allocations on the execution stack",
+        "explanation": "Each recursive call allocates a stack frame; without a terminating base case, the recursion consumes all stack memory, triggering a stack overflow.",
         "marks": 1
     },
     {
@@ -568,17 +583,17 @@ QUESTIONS_SEED = [
         "question_number": 2,
         "question_type": "MCQ",
         "category": "DSA",
-        "topic": "Trees",
+        "topic": "Backtracking",
         "difficulty": "MEDIUM",
-        "question": "In a BST, if both target nodes `p` and `q` are strictly smaller than `root.val`, where is their Lowest Common Ancestor (LCA)?",
+        "question": "In backtracking algorithms (e.g. generating all Subsets or Permutations), what is the purpose of the 'undo' / 'backtrack' step?",
         "options": [
-            "At root itself",
-            "In root.left subtree",
-            "In root.right subtree",
-            "Undefined"
+            "To restore the state so sibling exploration paths evaluate correct candidate choices",
+            "To double the recursion depth limit",
+            "To sort the output array in ascending order",
+            "To bypass base case verification"
         ],
-        "correct_answer": "In root.left subtree",
-        "explanation": "By BST properties, all values smaller than root reside strictly in the left subtree, so LCA must lie in `root.left`.",
+        "correct_answer": "To restore the state so sibling exploration paths evaluate correct candidate choices",
+        "explanation": "Backtracking explores choice trees by mutating state, recursing forward, and explicitly reverting (undoing) the change when returning so other branches see a clean state.",
         "marks": 1
     },
     {
@@ -587,17 +602,17 @@ QUESTIONS_SEED = [
         "question_number": 3,
         "question_type": "MCQ",
         "category": "DSA",
-        "topic": "Trees",
-        "difficulty": "EASY",
-        "question": "What is the recurrence relation for the maximum depth (height) of a binary tree rooted at `node`?",
+        "topic": "Backtracking",
+        "difficulty": "MEDIUM",
+        "question": "In the N-Queens problem, what optimization is used to prune invalid search branches in O(1) time?",
         "options": [
-            "depth(node) = depth(node.left) + depth(node.right)",
-            "depth(node) = 1 + max(depth(node.left), depth(node.right))",
-            "depth(node) = 1 + min(depth(node.left), depth(node.right))",
-            "depth(node) = max(depth(node.left), depth(node.right))"
+            "Using boolean arrays / hash sets to track occupied columns, main diagonals, and anti-diagonals",
+            "Sorting the chessboard rows before placing queens",
+            "Running Floyd-Warshall on the board matrix",
+            "Using Dijkstra's algorithm to find shortest queen paths"
         ],
-        "correct_answer": "depth(node) = 1 + max(depth(node.left), depth(node.right))",
-        "explanation": "The height of a binary tree is 1 (for the current node) plus the maximum of the depths of its left and right subtrees.",
+        "correct_answer": "Using boolean arrays / hash sets to track occupied columns, main diagonals, and anti-diagonals",
+        "explanation": "Tracking occupied columns (`col`), main diagonals (`row - col`), and anti-diagonals (`row + col`) allows constant-time safety verification before placing a queen.",
         "marks": 1
     },
     {
@@ -606,12 +621,12 @@ QUESTIONS_SEED = [
         "question_number": 4,
         "question_type": "MCQ",
         "category": "DSA",
-        "topic": "Heaps",
+        "topic": "Graphs Revision",
         "difficulty": "EASY",
-        "question": "What is the worst-case time complexity of inserting a new element into a binary Max Heap of size N?",
-        "options": ["O(1)", "O(log N)", "O(N)", "O(N log N)"],
-        "correct_answer": "O(log N)",
-        "explanation": "Insertion appends the element at the end of the heap array and bubbles up (heapifies up) along tree height, taking O(log N).",
+        "question": "What is the time complexity of Breadth-First Search (BFS) on an adjacency list graph with V vertices and E edges?",
+        "options": ["O(V + E)", "O(V * E)", "O(V^2)", "O(E log V)"],
+        "correct_answer": "O(V + E)",
+        "explanation": "BFS visits every vertex once and explores every outgoing edge once, resulting in O(V + E) linear time.",
         "marks": 1
     },
     {
@@ -620,12 +635,17 @@ QUESTIONS_SEED = [
         "question_number": 5,
         "question_type": "MCQ",
         "category": "DSA",
-        "topic": "Heaps",
+        "topic": "Graphs Revision",
         "difficulty": "MEDIUM",
-        "question": "To find the Kth largest element in an unsorted stream of N numbers in optimal memory, which data structure is best?",
-        "options": ["Min-Heap of size K", "Max-Heap of size N", "Sorted Array of size N", "Queue of size K"],
-        "correct_answer": "Min-Heap of size K",
-        "explanation": "A Min-Heap of size K maintains the top K largest elements seen so far; its root always contains the Kth largest element.",
+        "question": "A valid Topological Sort ordering can only be found for which class of graphs?",
+        "options": [
+            "Directed Acyclic Graphs (DAG)",
+            "Any Directed Graph with cycles",
+            "Undirected Complete Graphs",
+            "Bipartite Graphs only"
+        ],
+        "correct_answer": "Directed Acyclic Graphs (DAG)",
+        "explanation": "Topological Sort linearly orders vertices such that for every directed edge u -> v, u appears before v. If a cycle exists, no such linear order is mathematically possible.",
         "marks": 1
     },
     {
@@ -633,13 +653,13 @@ QUESTIONS_SEED = [
         "assessment_id": "week-7-quiz",
         "question_number": 6,
         "question_type": "MCQ",
-        "category": "OS",
-        "topic": "Processes & Threads",
-        "difficulty": "EASY",
-        "question": "Which resource is shared by all threads belonging to the same process?",
-        "options": ["Stack Memory", "Registers & Program Counter", "Heap Memory and Code/Data Segment", "Thread ID"],
-        "correct_answer": "Heap Memory and Code/Data Segment",
-        "explanation": "Threads within the same process share the virtual address space (Heap, global data, code segment, and open files), but each has its own private Stack.",
+        "category": "CN",
+        "topic": "Networking Protocols",
+        "difficulty": "MEDIUM",
+        "question": "What protocol is used to map a known network-layer IP address to a physical data-link layer MAC address on a local area network?",
+        "options": ["ARP (Address Resolution Protocol)", "DHCP", "DNS", "ICMP"],
+        "correct_answer": "ARP (Address Resolution Protocol)",
+        "explanation": "ARP broadcasts an IP query over Ethernet to discover the physical hardware MAC address corresponding to that target IP.",
         "marks": 1
     },
     {
@@ -647,18 +667,18 @@ QUESTIONS_SEED = [
         "assessment_id": "week-7-quiz",
         "question_number": 7,
         "question_type": "MCQ",
-        "category": "OS",
-        "topic": "Synchronization",
-        "difficulty": "MEDIUM",
-        "question": "What is the essential difference between a Mutex and a Counting Semaphore?",
+        "category": "CN",
+        "topic": "Networking Protocols",
+        "difficulty": "EASY",
+        "question": "What core security mechanism differentiates HTTPS from plain HTTP?",
         "options": [
-            "A Mutex has ownership and can only be unlocked by the thread that locked it; a Counting Semaphore can be signaled by any thread",
-            "A Mutex allows multiple threads concurrently while a Semaphore allows only one",
-            "Semaphores are only implemented in hardware",
-            "Mutexes can never cause deadlocks"
+            "HTTPS encrypts communication using Transport Layer Security (TLS/SSL) with asymmetric and symmetric cryptography",
+            "HTTPS uses UDP on port 80 to speed up page downloads",
+            "HTTPS disables cookies and caching by default",
+            "HTTPS compresses web payloads with Gzip at the router"
         ],
-        "correct_answer": "A Mutex has ownership and can only be unlocked by the thread that locked it; a Counting Semaphore can be signaled by any thread",
-        "explanation": "A Mutex is a locking mechanism with thread ownership, whereas a Semaphore is a signaling mechanism with an integer counter.",
+        "correct_answer": "HTTPS encrypts communication using Transport Layer Security (TLS/SSL) with asymmetric and symmetric cryptography",
+        "explanation": "HTTPS runs standard HTTP over an encrypted TLS connection, providing confidentiality, data integrity, and server authentication.",
         "marks": 1
     },
     {
@@ -666,13 +686,13 @@ QUESTIONS_SEED = [
         "assessment_id": "week-7-quiz",
         "question_number": 8,
         "question_type": "MCQ",
-        "category": "OS",
-        "topic": "Context Switching",
+        "category": "Computer Architecture",
+        "topic": "Pipelining & Hazards",
         "difficulty": "MEDIUM",
-        "question": "Where does the OS kernel store the CPU state and registers during a process context switch?",
-        "options": ["Process Control Block (PCB)", "File Allocation Table (FAT)", "L1 Data Cache", "TLB Register"],
-        "correct_answer": "Process Control Block (PCB)",
-        "explanation": "The PCB (Process Control Block) stores process state, CPU registers, program counter, memory management info, and accounting data.",
+        "question": "In CPU pipelining, what type of hazard occurs when an instruction depends on the result of a previous instruction that is still in execution?",
+        "options": ["Data Hazard", "Structural Hazard", "Control Hazard", "Branch Penalty Hazard"],
+        "correct_answer": "Data Hazard",
+        "explanation": "A Data Hazard arises when instructions exhibit data dependencies (Read-After-Write, RAW) before the needed operand has been written back to registers.",
         "marks": 1
     },
     {
@@ -680,13 +700,18 @@ QUESTIONS_SEED = [
         "assessment_id": "week-7-quiz",
         "question_number": 9,
         "question_type": "MCQ",
-        "category": "OS",
-        "topic": "CPU Scheduling",
-        "difficulty": "MEDIUM",
-        "question": "Which non-preemptive CPU scheduling algorithm achieves the minimum average waiting time for a given set of stationary processes?",
-        "options": ["First-Come First-Served (FCFS)", "Shortest Job First (SJF)", "Round Robin (RR)", "Priority Scheduling"],
-        "correct_answer": "Shortest Job First (SJF)",
-        "explanation": "SJF is provably optimal for minimizing average waiting time by scheduling shorter burst times first.",
+        "category": "Computer Architecture",
+        "topic": "RISC vs CISC",
+        "difficulty": "EASY",
+        "question": "Which characteristic is a hallmark of Reduced Instruction Set Computer (RISC) architectures like ARM?",
+        "options": [
+            "Fixed-length instructions executed in a single cycle with load/store memory access model",
+            "Variable-length complex multi-cycle instructions with direct memory arithmetic",
+            "Absence of general-purpose registers",
+            "Microprogrammed complex control units"
+        ],
+        "correct_answer": "Fixed-length instructions executed in a single cycle with load/store memory access model",
+        "explanation": "RISC focuses on simple, uniform fixed-length instructions executed rapidly via pipelining, allowing memory access exclusively through explicit LOAD and STORE instructions.",
         "marks": 1
     },
     {
@@ -694,31 +719,41 @@ QUESTIONS_SEED = [
         "assessment_id": "week-7-quiz",
         "question_number": 10,
         "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Trees",
+        "category": "Software Engineering",
+        "topic": "Version Control",
         "difficulty": "EASY",
-        "question": "Which traversal algorithm is used to perform a Level-Order Traversal of a binary tree?",
-        "options": ["Breadth-First Search (BFS) using a Queue", "Depth-First Search (DFS) using a Stack", "Morris Traversal", "Binary Search"],
-        "correct_answer": "Breadth-First Search (BFS) using a Queue",
-        "explanation": "BFS using a FIFO Queue processes nodes level by level from top to bottom.",
+        "question": "What is the primary difference between `git merge` and `git rebase` when integrating feature branch changes?",
+        "options": [
+            "Git merge preserves complete commit history with a dedicated merge commit, while Git rebase rewrites project history linearly",
+            "Git rebase deletes remote commits permanently",
+            "Git merge is only used on local branches, while rebase is only used on origin/main",
+            "There is no difference in Git commit topology"
+        ],
+        "correct_answer": "Git merge preserves complete commit history with a dedicated merge commit, while Git rebase rewrites project history linearly",
+        "explanation": "`git merge` creates a non-destructive merge commit preserving exact branch history, whereas `git rebase` reapplies commits atop the base branch for a clean linear history.",
         "marks": 1
     },
 
     # -------------------------------------------------------------
-    # 5. WEEK 9 QUIZ: Graphs, Intro DP & Networks (10 Questions)
+    # 5. WEEK 9 QUIZ: Machine Learning Fundamentals & Algorithms (10 Questions)
     # -------------------------------------------------------------
     {
         "id": "w9-q1",
         "assessment_id": "week-9-quiz",
         "question_number": 1,
         "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Graphs",
+        "category": "Machine Learning",
+        "topic": "Learning Paradigms",
         "difficulty": "EASY",
-        "question": "What is the time complexity of Breadth-First Search (BFS) on an adjacency list graph with V vertices and E edges?",
-        "options": ["O(V + E)", "O(V * E)", "O(V^2)", "O(E log V)"],
-        "correct_answer": "O(V + E)",
-        "explanation": "BFS visits every vertex once and explores every outgoing edge once, yielding O(V + E) linear time.",
+        "question": "What distinguishes Supervised Learning from Unsupervised Learning?",
+        "options": [
+            "Supervised learning trains on labeled input-output pairs; unsupervised learning finds patterns/clusters in unlabeled data",
+            "Supervised learning requires neural networks, whereas unsupervised learning only uses linear models",
+            "Supervised learning does not use feature vectors",
+            "Unsupervised learning always produces higher prediction accuracy"
+        ],
+        "correct_answer": "Supervised learning trains on labeled input-output pairs; unsupervised learning finds patterns/clusters in unlabeled data",
+        "explanation": "Supervised learning maps features X to known ground-truth labels Y, whereas Unsupervised learning discovers intrinsic groupings without target labels.",
         "marks": 1
     },
     {
@@ -726,18 +761,13 @@ QUESTIONS_SEED = [
         "assessment_id": "week-9-quiz",
         "question_number": 2,
         "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Graphs",
+        "category": "Machine Learning",
+        "topic": "Bias-Variance Tradeoff",
         "difficulty": "MEDIUM",
-        "question": "Topological Sort can be computed on which type of graph?",
-        "options": [
-            "Any Directed Graph",
-            "Directed Acyclic Graph (DAG) only",
-            "Undirected Connected Graph",
-            "Complete Graph"
-        ],
-        "correct_answer": "Directed Acyclic Graph (DAG) only",
-        "explanation": "A Topological Ordering requires directed edges without cycles (DAG); a cycle creates a circular dependency where no valid linear ordering exists.",
+        "question": "A machine learning model with high training accuracy (99%) but low validation accuracy (62%) is suffering from which problem?",
+        "options": ["High Bias (Underfitting)", "High Variance (Overfitting)", "Data Leakage", "Vanishing Gradient"],
+        "correct_answer": "High Variance (Overfitting)",
+        "explanation": "Overfitting occurs when a model memorizes training noise rather than learning generalizable patterns, resulting in high variance and poor validation performance.",
         "marks": 1
     },
     {
@@ -745,18 +775,18 @@ QUESTIONS_SEED = [
         "assessment_id": "week-9-quiz",
         "question_number": 3,
         "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Graphs",
-        "difficulty": "MEDIUM",
-        "question": "Why does standard Dijkstra's algorithm fail on graphs with negative edge weights?",
+        "category": "Machine Learning",
+        "topic": "Model Validation",
+        "difficulty": "EASY",
+        "question": "Why is K-Fold Cross-Validation preferred over a single train/test split on moderate-sized datasets?",
         "options": [
-            "Dijkstra assumes that adding an edge to a path never decreases total path distance (greedy assumption)",
-            "Dijkstra can only run on undirected trees",
-            "Priority queue cannot store negative numbers",
-            "Dijkstra runs in O(V!) time on negative weights"
+            "It trains and tests on all K partitions to produce a reliable, low-variance estimate of model generalization",
+            "It guarantees zero training error on any model",
+            "It converts non-linear datasets into linear relationships",
+            "It eliminates the need for test data collection"
         ],
-        "correct_answer": "Dijkstra assumes that adding an edge to a path never decreases total path distance (greedy assumption)",
-        "explanation": "Dijkstra greedily marks visited nodes as final; negative edge weights invalidate the invariant that shortest path cannot be decreased later.",
+        "correct_answer": "It trains and tests on all K partitions to produce a reliable, low-variance estimate of model generalization",
+        "explanation": "K-Fold evaluates model performance across K distinct folds, ensuring every sample is used for validation once, reducing evaluation variance.",
         "marks": 1
     },
     {
@@ -764,18 +794,18 @@ QUESTIONS_SEED = [
         "assessment_id": "week-9-quiz",
         "question_number": 4,
         "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Dynamic Programming",
-        "difficulty": "EASY",
-        "question": "What two core properties must a problem exhibit to be effectively solved by Dynamic Programming?",
+        "category": "Machine Learning",
+        "topic": "Regression & Classification",
+        "difficulty": "MEDIUM",
+        "question": "Which loss function is standard for training a binary Logistic Regression classifier?",
         "options": [
-            "Optimal Substructure and Overlapping Subproblems",
-            "Greedy Choice Property and Divide-and-Conquer",
-            "NP-Hardness and Polynomial Reducibility",
-            "Randomized Steps and Monte Carlo Convergence"
+            "Binary Cross-Entropy (Log Loss)",
+            "Mean Squared Error (MSE)",
+            "Hinge Loss",
+            "Mean Absolute Error (MAE)"
         ],
-        "correct_answer": "Optimal Substructure and Overlapping Subproblems",
-        "explanation": "DP requires Optimal Substructure (global optimal solution contains optimal sub-solutions) and Overlapping Subproblems (subproblems recur repeatedly).",
+        "correct_answer": "Binary Cross-Entropy (Log Loss)",
+        "explanation": "Binary Cross-Entropy (`- [y log(p) + (1-y) log(1-p)]`) is the convex maximum likelihood loss function for logistic probability outputs.",
         "marks": 1
     },
     {
@@ -783,18 +813,13 @@ QUESTIONS_SEED = [
         "assessment_id": "week-9-quiz",
         "question_number": 5,
         "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Dynamic Programming",
+        "category": "Machine Learning",
+        "topic": "Decision Trees",
         "difficulty": "MEDIUM",
-        "question": "In the 0/1 Knapsack problem with N items and capacity W, what is the standard 2D DP state representation?",
-        "options": [
-            "dp[i][w]: Maximum value possible using a subset of first i items with capacity at most w",
-            "dp[i]: Maximum weight of item i",
-            "dp[w]: Total items fitting in weight w",
-            "dp[i][j]: Value of item i minus weight of item j"
-        ],
-        "correct_answer": "dp[i][w]: Maximum value possible using a subset of first i items with capacity at most w",
-        "explanation": "`dp[i][w]` captures the maximum value achievable considering the first `i` items with a remaining weight capacity of `w`.",
+        "question": "Which metric measures the impurity of a dataset node when building a classification Decision Tree?",
+        "options": ["Gini Impurity / Entropy", "R-squared Score", "Euclidean Distance", "Cosine Similarity"],
+        "correct_answer": "Gini Impurity / Entropy",
+        "explanation": "Decision trees evaluate split quality using Gini Impurity or Information Gain (Entropy reduction) to create homogeneous child leaves.",
         "marks": 1
     },
     {
@@ -802,18 +827,18 @@ QUESTIONS_SEED = [
         "assessment_id": "week-9-quiz",
         "question_number": 6,
         "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Dynamic Programming",
+        "category": "Machine Learning",
+        "topic": "Ensemble Methods",
         "difficulty": "MEDIUM",
-        "question": "For Longest Common Subsequence (LCS) of strings S1 and S2, if `S1[i-1] == S2[j-1]`, what is `dp[i][j]`?",
+        "question": "How does Random Forest reduce model variance compared to an individual deep Decision Tree?",
         "options": [
-            "dp[i][j] = 1 + dp[i-1][j-1]",
-            "dp[i][j] = max(dp[i-1][j], dp[i][j-1])",
-            "dp[i][j] = dp[i-1][j-1]",
-            "dp[i][j] = 1 + max(dp[i-1][j], dp[i][j-1])"
+            "By training multiple decorrelated trees on bootstrap samples and random feature subsets, then averaging their predictions (Bagging)",
+            "By boosting sequential residuals with gradient descent",
+            "By pruning all tree branches to depth 1",
+            "By converting trees into neural layers"
         ],
-        "correct_answer": "dp[i][j] = 1 + dp[i-1][j-1]",
-        "explanation": "When matching characters match, the LCS length increases by 1 plus the LCS of the prefixes `S1[0..i-2]` and `S2[0..j-2]`.",
+        "correct_answer": "By training multiple decorrelated trees on bootstrap samples and random feature subsets, then averaging their predictions (Bagging)",
+        "explanation": "Random Forest uses Bootstrap Aggregation (Bagging) plus feature sub-sampling to decorrelate individual trees; averaging their outputs significantly reduces variance without increasing bias.",
         "marks": 1
     },
     {
@@ -821,18 +846,18 @@ QUESTIONS_SEED = [
         "assessment_id": "week-9-quiz",
         "question_number": 7,
         "question_type": "MCQ",
-        "category": "CN",
-        "topic": "TCP Handshake",
+        "category": "Machine Learning",
+        "topic": "KNN",
         "difficulty": "EASY",
-        "question": "What is the correct sequence of packets in the TCP 3-Way Handshake?",
+        "question": "Why is feature scaling (e.g. StandardScaler / MinMaxScaler) critical before running K-Nearest Neighbors (KNN)?",
         "options": [
-            "SYN -> SYN-ACK -> ACK",
-            "ACK -> SYN -> SYN-ACK",
-            "SYN -> ACK -> DATA",
-            "CONNECT -> ACCEPT -> ESTABLISHED"
+            "KNN relies on distance metrics (e.g. Euclidean distance), so unscaled large-magnitude features will dominate neighbor calculations",
+            "KNN cannot compute gradients without scaling",
+            "KNN only accepts input values between 0 and 1",
+            "Scaling prevents matrix inversion singularity"
         ],
-        "correct_answer": "SYN -> SYN-ACK -> ACK",
-        "explanation": "Client sends SYN; Server responds with SYN-ACK; Client replies with ACK to establish a full-duplex connection.",
+        "correct_answer": "KNN relies on distance metrics (e.g. Euclidean distance), so unscaled large-magnitude features will dominate neighbor calculations",
+        "explanation": "Distance-based algorithms like KNN measure spatial proximity; features with larger numeric scales disproportionately dictate distance calculations if not normalized.",
         "marks": 1
     },
     {
@@ -840,13 +865,18 @@ QUESTIONS_SEED = [
         "assessment_id": "week-9-quiz",
         "question_number": 8,
         "question_type": "MCQ",
-        "category": "CN",
-        "topic": "Application Layer",
+        "category": "Machine Learning",
+        "topic": "Naive Bayes",
         "difficulty": "EASY",
-        "question": "What transport protocol does DNS predominantly use for standard query lookups?",
-        "options": ["UDP on port 53", "TCP on port 80", "HTTP on port 443", "ICMP on port 0"],
-        "correct_answer": "UDP on port 53",
-        "explanation": "DNS queries use UDP on port 53 for fast, lightweight resolution without connection establishment overhead.",
+        "question": "What is the core 'naive' independence assumption in the Naive Bayes classifier?",
+        "options": [
+            "All input features are conditionally independent of each other given the class label",
+            "All classes have an equal prior probability of 0.5",
+            "The data distribution is strictly linear and separable",
+            "The model ignores outliers automatically"
+        ],
+        "correct_answer": "All input features are conditionally independent of each other given the class label",
+        "explanation": "Naive Bayes simplifies Bayes theorem by assuming features are conditionally independent given class y: `P(X|y) = ∏ P(x_i|y)`.",
         "marks": 1
     },
     {
@@ -854,18 +884,13 @@ QUESTIONS_SEED = [
         "assessment_id": "week-9-quiz",
         "question_number": 9,
         "question_type": "MCQ",
-        "category": "CN",
-        "topic": "HTTP Status Codes",
-        "difficulty": "EASY",
-        "question": "What is the difference between HTTP status code 401 Unauthorized and 403 Forbidden?",
-        "options": [
-            "401 means authentication is missing or invalid; 403 means identity is known but access to the resource is forbidden",
-            "401 is a server crash; 403 is a client crash",
-            "401 indicates expired SSL certificate; 403 indicates rate limit exceeded",
-            "They are exact synonyms in RFC 9110"
-        ],
-        "correct_answer": "401 means authentication is missing or invalid; 403 means identity is known but access to the resource is forbidden",
-        "explanation": "401 represents unauthenticated requests (login required), whereas 403 indicates authenticated user lacks authorization permissions.",
+        "category": "Machine Learning",
+        "topic": "Evaluation Metrics",
+        "difficulty": "MEDIUM",
+        "question": "In medical disease detection where missing a sick patient (False Negative) is catastrophic, which metric should be prioritized?",
+        "options": ["Recall (Sensitivity)", "Precision", "Accuracy", "Specificity"],
+        "correct_answer": "Recall (Sensitivity)",
+        "explanation": "Recall is `TP / (TP + FN)`. Maximizing recall minimizes False Negatives (missed positive cases).",
         "marks": 1
     },
     {
@@ -873,13 +898,18 @@ QUESTIONS_SEED = [
         "assessment_id": "week-9-quiz",
         "question_number": 10,
         "question_type": "MCQ",
-        "category": "DSA",
-        "topic": "Disjoint Set Union (DSU)",
+        "category": "Data Science",
+        "topic": "EDA & Outliers",
         "difficulty": "MEDIUM",
-        "question": "With both Path Compression and Union by Rank optimizations, what is the nearly constant amortized time complexity per DSU operation?",
-        "options": ["O(α(N)) (Inverse Ackermann function)", "O(log N)", "O(N)", "O(1/N)"],
-        "correct_answer": "O(α(N)) (Inverse Ackermann function)",
-        "explanation": "DSU with union by rank and path compression achieves O(α(N)) time per operation, where α(N) ≤ 4 for all practical inputs.",
+        "question": "In Exploratory Data Analysis (EDA), what is the standard Tukey boxplot formula for identifying outlier boundaries using Interquartile Range (IQR = Q3 - Q1)?",
+        "options": [
+            "Values below Q1 - 1.5*IQR or above Q3 + 1.5*IQR",
+            "Values below Mean - 1.5*IQR or above Mean + 1.5*IQR",
+            "Values below Q1 - 3*IQR or above Q3 + 3*IQR only",
+            "Values strictly exceeding 2 standard deviations"
+        ],
+        "correct_answer": "Values below Q1 - 1.5*IQR or above Q3 + 1.5*IQR",
+        "explanation": "Tukey's IQR method defines standard outlier fences at `[Q1 - 1.5 * IQR, Q3 + 1.5 * IQR]`.",
         "marks": 1
     }
 ]

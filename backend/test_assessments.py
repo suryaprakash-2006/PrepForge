@@ -145,29 +145,17 @@ def test_scoring_and_pass_fail_calculation(client: TestClient):
     attempt_id = start_data["attempt_id"]
     questions = start_data["questions"]
 
-    # Known correct answers from seed:
-    # w3-q1: "O(N)"
-    # w3-q2: "O(N)"
-    # w3-q3: "O(1)"
-    # w3-q4: "current_sum = max(x, current_sum + x)"
-    # w3-q5: "Bitwise XOR (^)"
-    # w3-q6: "HAVING"
-    # w3-q7: "COUNT(*) counts all rows including NULLs; COUNT(col) ignores rows where col is NULL"
-    # w3-q8: "WHERE and GROUP BY"
-    # w3-q9: "mid = low + (high - low) / 2"
-    # w3-q10: "Reverse whole array, reverse first K elements, reverse remaining N-K elements"
-
     correct_map = {
         "w3-q1": "O(N)",
-        "w3-q2": "O(N)",
+        "w3-q2": "mid = low + (high - low) / 2",
         "w3-q3": "O(1)",
-        "w3-q4": "current_sum = max(x, current_sum + x)",
-        "w3-q5": "Bitwise XOR (^)",
-        "w3-q6": "HAVING",
-        "w3-q7": "COUNT(*) counts all rows including NULLs; COUNT(col) ignores rows where col is NULL",
-        "w3-q8": "WHERE and GROUP BY",
-        "w3-q9": "mid = low + (high - low) / 2",
-        "w3-q10": "Reverse whole array, reverse first K elements, reverse remaining N-K elements"
+        "w3-q4": "next_node = curr.next; curr.next = prev; prev = curr; curr = next_node",
+        "w3-q5": "Stack",
+        "w3-q6": "O(N)",
+        "w3-q7": "O(1)",
+        "w3-q8": "A correlated subquery references columns from the outer query and re-evaluates for each candidate row",
+        "w3-q9": "Every non-prime attribute is fully functionally dependent on the entire primary key (no partial dependencies)",
+        "w3-q10": "All operations within a transaction execute completely or none are applied (all-or-nothing)"
     }
 
     # Answer 7 correctly and 3 incorrectly (70% score -> Passed >= 60%)
@@ -209,7 +197,7 @@ def test_failing_score_sets_passed_false(client: TestClient):
     client.patch(
         f"/api/v1/assessment-attempts/{attempt_id}/answers/{q1['id']}",
         headers=headers,
-        json={"selected_answer": "O(1)"} # w5-q1 Floyd cycle space is O(1)
+        json={"selected_answer": "Inorder Traversal"} # w5-q1 BST inorder traversal is sorted
     )
 
     submit_res = client.post(f"/api/v1/assessment-attempts/{attempt_id}/submit", headers=headers)
@@ -237,7 +225,7 @@ def test_attempt_immutability_after_submission(client: TestClient):
     ans_res = client.patch(
         f"/api/v1/assessment-attempts/{attempt_id}/answers/{q1['id']}",
         headers=headers,
-        json={"selected_answer": "Inorder Traversal"}
+        json={"selected_answer": "Missing or unreachable base case causing infinite call frame allocations on the execution stack"}
     )
     assert ans_res.status_code == 400
 
@@ -248,6 +236,7 @@ def test_attempt_immutability_after_submission(client: TestClient):
 def test_user_isolation(client: TestClient):
     """Verify User A cannot access, answer, or submit User B's attempt (returns 404)."""
     user_a = f"ass_iso_a_{uuid.uuid4().hex[:8]}@example.com"
+
     user_b = f"ass_iso_b_{uuid.uuid4().hex[:8]}@example.com"
     token_a = get_auth_token(client, user_a)
     token_b = get_auth_token(client, user_b)
@@ -440,6 +429,61 @@ def test_unanswered_questions_score_zero_and_answer_replacement(client: TestClie
     assert res_data["total_marks"] == 10
     assert res_data["percentage"] == 10.0
     assert res_data["passed"] is False
+
+def test_content_invariants_and_single_matching_correct_answers():
+    """Verify all 50 questions have exactly one valid option matching correct_answer, 4 options, marks=1, and explanation."""
+    from app.data.assessment_seed import ASSESSMENTS_SEED, QUESTIONS_SEED
+
+    assert len(ASSESSMENTS_SEED) == 5
+    assert len(QUESTIONS_SEED) == 50
+
+    assessment_ids = {a["id"] for a in ASSESSMENTS_SEED}
+    assert assessment_ids == {"baseline-assessment", "week-3-quiz", "week-5-quiz", "week-7-quiz", "week-9-quiz"}
+
+    for a in ASSESSMENTS_SEED:
+        assert a["question_count"] == 10
+        assert a["duration_minutes"] == 30
+        assert a["passing_score"] == 60
+        assert a["status"] == "PUBLISHED"
+
+    # Verify each question
+    questions_per_assessment = {}
+    seen_q_numbers = {}
+
+    for q in QUESTIONS_SEED:
+        ass_id = q["assessment_id"]
+        assert ass_id in assessment_ids
+        questions_per_assessment[ass_id] = questions_per_assessment.get(ass_id, 0) + 1
+
+        # Check unique question numbers
+        q_num = q["question_number"]
+        if ass_id not in seen_q_numbers:
+            seen_q_numbers[ass_id] = set()
+        assert q_num not in seen_q_numbers[ass_id], f"Duplicate question number {q_num} in {ass_id}"
+        seen_q_numbers[ass_id].add(q_num)
+
+        # Options check
+        options = q["options"]
+        assert len(options) == 4, f"Question {q['id']} does not have 4 options"
+        assert len(set(options)) == 4, f"Question {q['id']} has duplicate options"
+
+        # Correct answer check
+        correct = q["correct_answer"]
+        assert correct in options, f"Question {q['id']} correct_answer '{correct}' not found in options {options}"
+        matches = [opt for opt in options if opt == correct]
+        assert len(matches) == 1, f"Question {q['id']} has multiple matches for correct_answer"
+
+        # Metadata checks
+        assert q["marks"] == 1
+        assert len(q["explanation"].strip()) > 10
+        assert len(q["question"].strip()) > 10
+        assert q["question_type"] == "MCQ"
+        assert q["difficulty"] in ["EASY", "MEDIUM", "HARD"]
+
+    for ass_id in assessment_ids:
+        assert questions_per_assessment[ass_id] == 10
+        assert seen_q_numbers[ass_id] == set(range(1, 11))
+
 
 
 
