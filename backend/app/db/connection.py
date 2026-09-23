@@ -71,6 +71,7 @@ class _DatabaseClient:
         await self._database["weaknesses"].create_index([("user_id", 1), ("status", 1)])
         await self._database["weaknesses"].create_index([("user_id", 1), ("priority", 1)])
         await self._database["weaknesses"].create_index([("user_id", 1), ("retry_date", 1)])
+        await self._database["weaknesses"].create_index([("user_id", 1), ("source_attempt_id", 1), ("source_question_id", 1)], unique=True, sparse=True)
         await self._database["weekly_reviews"].create_index([("user_id", 1), ("week_number", 1)], unique=True)
         await self._database["assessments"].create_index("id", unique=True)
         await self._database["assessment_questions"].create_index([("assessment_id", 1), ("question_number", 1)], unique=True)

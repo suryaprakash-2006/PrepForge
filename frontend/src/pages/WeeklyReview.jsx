@@ -386,16 +386,44 @@ const WeeklyReview = () => {
                     </div>
 
                     {/* Derived Section 4: Assessment & Mock Status */}
-                    <div style={{ padding: '16px 20px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                        <div>
-                            <strong style={{ fontSize: '14px', color: '#1e293b' }}>Weekly Assessment & Mock Status</strong>
-                            <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#64748b' }}>
-                                {reviewData.assessment_status}
-                            </p>
+                    <div style={{ padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
+                            <div>
+                                <h4 style={{ margin: 0, fontSize: '15px', color: '#1e293b' }}>
+                                    Weekly Assessment & Milestone Status
+                                </h4>
+                                <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+                                    {reviewData.assessment_status}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => navigate('/app/assessments')}
+                                style={{ padding: '6px 14px', backgroundColor: '#f1f5f9', color: '#0066cc', border: '1px solid #cbd5e1', borderRadius: '4px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer' }}
+                            >
+                                {reviewData.assessment_info && reviewData.assessment_info.assessments_completed > 0 ? 'View All Assessments →' : 'Take Assessment →'}
+                            </button>
                         </div>
-                        <span style={{ fontSize: '11px', padding: '3px 8px', backgroundColor: '#e2e8f0', borderRadius: '10px', color: '#64748b', fontWeight: 'bold' }}>
-                            Assessment Engine Phase
-                        </span>
+
+                        {reviewData.assessment_info && reviewData.assessment_info.assessments_completed > 0 && (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px', marginTop: '12px' }}>
+                                <div style={{ padding: '8px 12px', backgroundColor: '#f8fafc', borderRadius: '6px', border: '1px solid #f1f5f9' }}>
+                                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold' }}>Attempts</div>
+                                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#0f172a' }}>{reviewData.assessment_info.assessments_completed}</div>
+                                </div>
+                                <div style={{ padding: '8px 12px', backgroundColor: '#f8fafc', borderRadius: '6px', border: '1px solid #f1f5f9' }}>
+                                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold' }}>Latest Score</div>
+                                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#0066cc' }}>{reviewData.assessment_info.latest_assessment_percentage}%</div>
+                                </div>
+                                <div style={{ padding: '8px 12px', backgroundColor: '#f8fafc', borderRadius: '6px', border: '1px solid #f1f5f9' }}>
+                                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold' }}>Average Score</div>
+                                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#0f172a' }}>{reviewData.assessment_info.average_assessment_percentage}%</div>
+                                </div>
+                                <div style={{ padding: '8px 12px', backgroundColor: '#f0fdf4', borderRadius: '6px', border: '1px solid #bbf7d0' }}>
+                                    <div style={{ fontSize: '11px', color: '#15803d', fontWeight: 'bold' }}>Passed</div>
+                                    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#166534' }}>{reviewData.assessment_info.passed_assessments}</div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* User Reflection Form */}

@@ -485,5 +485,203 @@ def test_content_invariants_and_single_matching_correct_answers():
         assert seen_q_numbers[ass_id] == set(range(1, 11))
 
 
+def test_assessment_result_security_and_breakdown(client: TestClient):
+    """Verify result endpoint requires authentication, ownership, and SUBMITTED status, and returns accurate breakdown."""
+    user1_email = f"ass_res1_{uuid.uuid4().hex[:8]}@example.com"
+    token1 = get_auth_token(client, user1_email)
+    headers1 = {"Authorization": f"Bearer {token1}"}
+
+    user2_email = f"ass_res2_{uuid.uuid4().hex[:8]}@example.com"
+    token2 = get_auth_token(client, user2_email)
+    headers2 = {"Authorization": f"Bearer {token2}"}
+
+    # Start attempt
+    start_res = client.post("/api/v1/assessments/baseline-assessment/attempts", headers=headers1)
+    assert start_res.status_code == 201
+    att_id = start_res.json()["attempt_id"]
+    questions = start_res.json()["questions"]
+
+    # 1. Unauthenticated access returns 401
+    assert client.get(f"/api/v1/assessment-attempts/{att_id}/result").status_code == 401
+
+    # 2. IN_PROGRESS attempt result returns 400
+    res_in_prog = client.get(f"/api/v1/assessment-attempts/{att_id}/result", headers=headers1)
+    assert res_in_prog.status_code == 400
+    assert "in progress" in res_in_prog.json()["detail"].lower()
+
+    # 3. Another user accessing attempt returns 404
+    assert client.get(f"/api/v1/assessment-attempts/{att_id}/result", headers=headers2).status_code == 404
+
+    # Answer 1 question correctly and 1 question incorrectly
+    from app.data.assessment_seed import QUESTIONS_SEED
+    q_map = {q["id"]: q for q in QUESTIONS_SEED if q["assessment_id"] == "baseline-assessment"}
+
+    q1 = questions[0]
+    correct_ans1 = q_map[q1["id"]]["correct_answer"]
+    client.patch(
+        f"/api/v1/assessment-attempts/{att_id}/answers/{q1['id']}",
+        json={"selected_answer": correct_ans1},
+        headers=headers1
+    )
+
+    q2 = questions[1]
+    wrong_opts = [opt for opt in q2["options"] if opt != q_map[q2["id"]]["correct_answer"]]
+    client.patch(
+        f"/api/v1/assessment-attempts/{att_id}/answers/{q2['id']}",
+        json={"selected_answer": wrong_opts[0]},
+        headers=headers1
+    )
+
+    # Submit attempt
+    sub_res = client.post(f"/api/v1/assessment-attempts/{att_id}/submit", headers=headers1)
+    assert sub_res.status_code == 200
+
+    # 4. SUBMITTED attempt returns full result
+    result_res = client.get(f"/api/v1/assessment-attempts/{att_id}/result", headers=headers1)
+    assert result_res.status_code == 200
+    r_data = result_res.json()
+    assert r_data["attempt_id"] == att_id
+    assert r_data["status"] == "SUBMITTED"
+    assert r_data["score"] == 1
+    assert r_data["total_marks"] == 10
+    assert r_data["summary"]["total_questions"] == 10
+    assert r_data["summary"]["correct_count"] == 1
+    assert r_data["summary"]["incorrect_count"] == 1
+    assert r_data["summary"]["unanswered_count"] == 8
+
+    # Verify questions in result have correct answers and explanations
+    for rq in r_data["questions"]:
+        assert rq["correct_answer"] is not None
+        assert rq["explanation"] is not None
+        assert rq["is_in_weaknesses"] is False
+
+    rq1 = next(q for q in r_data["questions"] if q["question_id"] == q1["id"])
+    assert rq1["is_correct"] is True
+    assert rq1["marks_awarded"] == 1
+    assert rq1["selected_answer"] == correct_ans1
+
+    rq2 = next(q for q in r_data["questions"] if q["question_id"] == q2["id"])
+    assert rq2["is_correct"] is False
+    assert rq2["marks_awarded"] == 0
+    assert rq2["selected_answer"] == wrong_opts[0]
+
+
+def test_create_weakness_from_assessment_mistake(client: TestClient):
+    """Verify creating a weakness from an incorrect answer enforces constraints, derives provenance, and is idempotent."""
+    user_email = f"ass_wk_{uuid.uuid4().hex[:8]}@example.com"
+    token = get_auth_token(client, user_email)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    other_user_email = f"ass_wk_other_{uuid.uuid4().hex[:8]}@example.com"
+    other_token = get_auth_token(client, other_user_email)
+    other_headers = {"Authorization": f"Bearer {other_token}"}
+
+    # Start attempt
+    start_res = client.post("/api/v1/assessments/week-3-quiz/attempts", headers=headers)
+    assert start_res.status_code == 201
+    att_id = start_res.json()["attempt_id"]
+    questions = start_res.json()["questions"]
+
+    # 1. Unauthenticated creation returns 401
+    assert client.post(f"/api/v1/assessment-attempts/{att_id}/weaknesses", json={"question_id": questions[0]["id"]}).status_code == 401
+
+    # 2. Cannot create weakness on IN_PROGRESS attempt
+    res_in_prog = client.post(
+        f"/api/v1/assessment-attempts/{att_id}/weaknesses",
+        json={"question_id": questions[0]["id"]},
+        headers=headers
+    )
+    assert res_in_prog.status_code == 400
+
+    # Answer question 0 correctly, question 1 incorrectly, leave others unanswered
+    from app.data.assessment_seed import QUESTIONS_SEED
+    q_map = {q["id"]: q for q in QUESTIONS_SEED if q["assessment_id"] == "week-3-quiz"}
+
+    q_correct = questions[0]
+    client.patch(
+        f"/api/v1/assessment-attempts/{att_id}/answers/{q_correct['id']}",
+        json={"selected_answer": q_map[q_correct["id"]]["correct_answer"]},
+        headers=headers
+    )
+
+    q_wrong = questions[1]
+    wrong_opts = [opt for opt in q_wrong["options"] if opt != q_map[q_wrong["id"]]["correct_answer"]]
+    client.patch(
+        f"/api/v1/assessment-attempts/{att_id}/answers/{q_wrong['id']}",
+        json={"selected_answer": wrong_opts[0]},
+        headers=headers
+    )
+
+    # Submit
+    client.post(f"/api/v1/assessment-attempts/{att_id}/submit", headers=headers)
+
+    # 3. Cannot create weakness for correct question
+    res_corr = client.post(
+        f"/api/v1/assessment-attempts/{att_id}/weaknesses",
+        json={"question_id": q_correct["id"]},
+        headers=headers
+    )
+    assert res_corr.status_code == 400
+    assert "correct answer" in res_corr.json()["detail"].lower()
+
+    # 4. Cannot create weakness for another user's attempt
+    assert client.post(
+        f"/api/v1/assessment-attempts/{att_id}/weaknesses",
+        json={"question_id": q_wrong["id"]},
+        headers=other_headers
+    ).status_code == 404
+
+    # 5. Successful weakness creation from incorrect question
+    wk_res = client.post(
+        f"/api/v1/assessment-attempts/{att_id}/weaknesses",
+        json={"question_id": q_wrong["id"], "priority": "HIGH"},
+        headers=headers
+    )
+    assert wk_res.status_code in [200, 201]
+    wk_data = wk_res.json()
+    assert wk_data["id"] is not None
+    assert wk_data["source_type"] == "ASSESSMENT"
+    assert wk_data["source_assessment_id"] == "week-3-quiz"
+    assert wk_data["source_attempt_id"] == att_id
+    assert wk_data["source_question_id"] == q_wrong["id"]
+    assert wk_data["priority"] == "HIGH"
+    assert wk_data["topic"] == q_wrong["topic"]
+    assert wk_data["problem_concept"] == q_wrong["question"]
+
+    weakness_id = wk_data["id"]
+
+    # 6. Idempotent repeated creation returns existing weakness without duplicates
+    wk_res2 = client.post(
+        f"/api/v1/assessment-attempts/{att_id}/weaknesses",
+        json={"question_id": q_wrong["id"], "priority": "CRITICAL"},
+        headers=headers
+    )
+    assert wk_res2.status_code in [200, 201]
+    assert wk_res2.json()["id"] == weakness_id
+
+    # 7. Check that GET /weaknesses lists this assessment weakness
+    list_wk = client.get("/api/v1/weaknesses", headers=headers).json()
+    assert any(w["id"] == weakness_id and w["source_type"] == "ASSESSMENT" for w in list_wk)
+
+    # 8. Check that GET /result now reflects is_in_weaknesses == True
+    result_res = client.get(f"/api/v1/assessment-attempts/{att_id}/result", headers=headers).json()
+    rq_wrong = next(q for q in result_res["questions"] if q["question_id"] == q_wrong["id"])
+    assert rq_wrong["is_in_weaknesses"] is True
+    assert rq_wrong["weakness_id"] == weakness_id
+
+    rq_unanswered = next(q for q in result_res["questions"] if q["question_id"] == questions[2]["id"])
+    assert rq_unanswered["is_in_weaknesses"] is False
+
+    # 9. Create weakness from unanswered question also succeeds
+    wk_unanswered_res = client.post(
+        f"/api/v1/assessment-attempts/{att_id}/weaknesses",
+        json={"question_id": questions[2]["id"]},
+        headers=headers
+    )
+    assert wk_unanswered_res.status_code in [200, 201]
+    assert wk_unanswered_res.json()["source_question_id"] == questions[2]["id"]
+
+
+
 
 

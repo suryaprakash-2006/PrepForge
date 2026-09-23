@@ -266,3 +266,55 @@ def test_mistakes_to_review_cap_and_resolved_handling(client: TestClient):
     for item in data["mistakes_to_review"]:
         assert item["status"] != "RESOLVED"
 
+
+def test_weekly_review_reflects_assessment_stats(client: TestClient):
+    """Verify weekly review derives assessment metrics from submitted attempts without altering reflection."""
+    user_email = f"rev_ass_{uuid.uuid4().hex[:8]}@example.com"
+    token = get_auth_token(client, user_email)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Save reflection first
+    put_res = client.put(
+        "/api/v1/weekly-reviews/3",
+        headers=headers,
+        json={
+            "weakest_topics": ["Binary Search"],
+            "improved_topics": ["Sliding Window"],
+            "confidence": 4,
+            "motivation": 5,
+            "schedule_adjustments": "Add extra practice."
+        }
+    )
+    assert put_res.status_code == 200
+
+    # Before assessment: default assessment status
+    get_res = client.get("/api/v1/weekly-reviews/3", headers=headers)
+    assert get_res.status_code == 200
+    assert get_res.json()["assessment_status"] == "No assessment data available yet."
+    assert get_res.json()["assessment_info"]["assessments_completed"] == 0
+
+    # Take Week 3 Quiz and submit
+    start_res = client.post("/api/v1/assessments/week-3-quiz/attempts", headers=headers)
+    assert start_res.status_code == 201
+    att_id = start_res.json()["attempt_id"]
+
+    sub_res = client.post(f"/api/v1/assessment-attempts/{att_id}/submit", headers=headers)
+    assert sub_res.status_code == 200
+
+    # After assessment: weekly review reflects the submitted attempt
+    rev_after = client.get("/api/v1/weekly-reviews/3", headers=headers)
+    assert rev_after.status_code == 200
+    rev_data = rev_after.json()
+
+    assert rev_data["assessment_info"]["assessments_completed"] == 1
+    assert rev_data["assessment_info"]["latest_assessment_percentage"] is not None
+    assert "Completed 1 attempt" in rev_data["assessment_status"]
+
+    # Ensure user reflection was NOT overwritten
+    assert rev_data["reflection"]["weakest_topics"] == ["Binary Search"]
+    assert rev_data["reflection"]["improved_topics"] == ["Sliding Window"]
+    assert rev_data["reflection"]["confidence"] == 4
+    assert rev_data["reflection"]["motivation"] == 5
+    assert rev_data["reflection"]["schedule_adjustments"] == "Add extra practice."
+
+

@@ -1,5 +1,6 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
+from datetime import datetime
 
 class OverallProgress(BaseModel):
     total_tasks: int
@@ -27,8 +28,19 @@ class CategoryProgress(BaseModel):
     completed_tasks: int
     completion_percentage: float
 
+class LatestAssessmentProgress(BaseModel):
+    assessment_id: str
+    assessment_title: str
+    attempt_id: str
+    percentage: float
+    score: int
+    total_marks: int
+    passed: bool
+    submitted_at: datetime
+
 class DashboardResponse(BaseModel):
     overall: OverallProgress
     current_week: CurrentWeekProgress
     today: TodayProgress
     categories: List[CategoryProgress]
+    latest_assessment: Optional[LatestAssessmentProgress] = None

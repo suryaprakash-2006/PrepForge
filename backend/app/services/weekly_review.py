@@ -12,6 +12,7 @@ from app.schemas.weekly_review import (
     WeeklyReviewCategoryProgress,
     WeeklyReviewWeaknessSummary,
     WeeklyReviewMistakeItem,
+    WeeklyReviewAssessmentInfo,
     WeeklyReflectionResponse,
     WeeklyReflectionUpdate
 )
@@ -154,6 +155,48 @@ async def get_weekly_review(user_id: str, week_number: int) -> WeeklyReviewRespo
         )
     else:
         reflection = WeeklyReflectionResponse()
+
+    # 7. Assessment performance for this week
+    assessment_docs = await db["assessments"].find({"week_number": week_number}).to_list(length=None)
+    assessment_ids = [a["id"] for a in assessment_docs]
+    
+    assessment_status = "No assessment data available yet."
+    assessment_info = WeeklyReviewAssessmentInfo(
+        assessments_completed=0,
+        latest_assessment_percentage=None,
+        average_assessment_percentage=None,
+        passed_assessments=0,
+        failed_assessments=0,
+        summary="No assessment data available yet."
+    )
+
+    if assessment_ids:
+        attempts = await db["assessment_attempts"].find({
+            "user_id": user_id,
+            "assessment_id": {"$in": assessment_ids},
+            "status": "SUBMITTED"
+        }).sort("submitted_at", -1).to_list(length=None)
+
+        if attempts:
+            completed_count = len(attempts)
+            latest_attempt = attempts[0]
+            latest_pct = latest_attempt.get("percentage", 0.0)
+            percentages = [att.get("percentage", 0.0) for att in attempts if att.get("percentage") is not None]
+            avg_pct = round(sum(percentages) / len(percentages), 1) if percentages else latest_pct
+            passed_count = sum(1 for att in attempts if att.get("passed") is True)
+            failed_count = sum(1 for att in attempts if att.get("passed") is False)
+            
+            pass_str = "Passed" if latest_attempt.get("passed") else "Needs Improvement"
+            summary_str = f"Completed {completed_count} attempt(s) with latest score {latest_pct}% ({pass_str})."
+            assessment_status = summary_str
+            assessment_info = WeeklyReviewAssessmentInfo(
+                assessments_completed=completed_count,
+                latest_assessment_percentage=latest_pct,
+                average_assessment_percentage=avg_pct,
+                passed_assessments=passed_count,
+                failed_assessments=failed_count,
+                summary=summary_str
+            )
         
     return WeeklyReviewResponse(
         week=WeeklyReviewWeekInfo(
@@ -167,7 +210,8 @@ async def get_weekly_review(user_id: str, week_number: int) -> WeeklyReviewRespo
         weakness_summary=weakness_summary,
         mistakes_to_review=unresolved_mistakes[:5],
         reflection=reflection,
-        assessment_status="No assessment data available yet."
+        assessment_status=assessment_status,
+        assessment_info=assessment_info
     )
 
 async def save_weekly_reflection(user_id: str, week_number: int, data: WeeklyReflectionUpdate) -> WeeklyReviewResponse:

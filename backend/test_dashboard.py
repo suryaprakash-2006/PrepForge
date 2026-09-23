@@ -142,3 +142,35 @@ def test_dashboard_totals_match_curriculum(client: TestClient):
     
     category_tasks_sum = sum(c["total_tasks"] for c in data["categories"])
     assert category_tasks_sum == len(curriculum_tasks)
+
+
+def test_dashboard_latest_assessment(client: TestClient):
+    """Verify dashboard includes latest_assessment only when a submitted attempt exists."""
+    user_email = f"dash_ass_{uuid.uuid4().hex[:8]}@example.com"
+    token = get_auth_token(client, user_email)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Initial: no assessment completed
+    res1 = client.get("/api/v1/dashboard", headers=headers)
+    assert res1.status_code == 200
+    assert res1.json().get("latest_assessment") is None
+
+    # Start and submit an assessment
+    start_res = client.post("/api/v1/assessments/baseline-assessment/attempts", headers=headers)
+    assert start_res.status_code == 201
+    att_id = start_res.json()["attempt_id"]
+
+    sub_res = client.post(f"/api/v1/assessment-attempts/{att_id}/submit", headers=headers)
+    assert sub_res.status_code == 200
+
+    # Dashboard now returns latest_assessment
+    res2 = client.get("/api/v1/dashboard", headers=headers)
+    assert res2.status_code == 200
+    latest = res2.json().get("latest_assessment")
+    assert latest is not None
+    assert latest["assessment_id"] == "baseline-assessment"
+    assert latest["attempt_id"] == att_id
+    assert latest["percentage"] is not None
+    assert latest["score"] is not None
+    assert latest["total_marks"] == 10
+

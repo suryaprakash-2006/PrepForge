@@ -3,8 +3,11 @@ from app.api.deps import get_current_user
 from app.schemas.assessment_attempt import (
     AnswerSubmission,
     AnswerRecordResponse,
-    SubmitAttemptResponse
+    SubmitAttemptResponse,
+    AttemptResultResponse,
+    CreateWeaknessFromMistakeRequest
 )
+from app.schemas.weakness import WeaknessResponse
 from app.services import assessment as assessment_service
 
 router = APIRouter()
@@ -41,4 +44,38 @@ async def submit_attempt(
     return await assessment_service.submit_attempt(
         user_id=user_id,
         attempt_id=attempt_id
+    )
+
+@router.get("/{attempt_id}/result", response_model=AttemptResultResponse)
+async def get_attempt_result(
+    attempt_id: str = Path(..., description="Assessment attempt ID"),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Retrieve full question-by-question breakdown, correct answers, explanations,
+    and weakness logging status for a submitted attempt.
+    Strictly forbidden on IN_PROGRESS attempts.
+    """
+    user_id = str(current_user["_id"])
+    return await assessment_service.get_attempt_result(
+        user_id=user_id,
+        attempt_id=attempt_id
+    )
+
+@router.post("/{attempt_id}/weaknesses", response_model=WeaknessResponse, status_code=status.HTTP_201_CREATED)
+async def create_weakness_from_mistake(
+    data: CreateWeaknessFromMistakeRequest,
+    attempt_id: str = Path(..., description="Assessment attempt ID"),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Create a tracked weakness record from an incorrect or unanswered question
+    in a submitted assessment attempt.
+    Idempotent: returns the existing weakness if already logged.
+    """
+    user_id = str(current_user["_id"])
+    return await assessment_service.create_weakness_from_attempt(
+        user_id=user_id,
+        attempt_id=attempt_id,
+        data=data
     )

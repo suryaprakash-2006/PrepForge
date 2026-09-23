@@ -59,6 +59,14 @@ class WeeklyReviewMistakeItem(BaseModel):
     priority: str
     status: str
 
+class WeeklyReviewAssessmentInfo(BaseModel):
+    assessments_completed: int = 0
+    latest_assessment_percentage: Optional[float] = None
+    average_assessment_percentage: Optional[float] = None
+    passed_assessments: int = 0
+    failed_assessments: int = 0
+    summary: str = "No assessment data available yet."
+
 class WeeklyReviewResponse(BaseModel):
     week: WeeklyReviewWeekInfo
     progress: WeeklyReviewProgress
@@ -68,3 +76,4 @@ class WeeklyReviewResponse(BaseModel):
     mistakes_to_review: List[WeeklyReviewMistakeItem]
     reflection: WeeklyReflectionResponse
     assessment_status: Optional[str] = "No assessment data available yet."
+    assessment_info: Optional[WeeklyReviewAssessmentInfo] = None

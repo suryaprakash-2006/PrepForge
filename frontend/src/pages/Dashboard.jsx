@@ -55,7 +55,7 @@ const Dashboard = () => {
         return null;
     }
 
-    const { overall, current_week, today, categories } = dashboardData;
+    const { overall, current_week, today, categories, latest_assessment } = dashboardData;
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
@@ -151,6 +151,41 @@ const Dashboard = () => {
                 </div>
 
             </div>
+
+            {/* Recent Assessment Summary Card */}
+            {latest_assessment && (
+                <div style={{ padding: '20px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                            <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#0066cc', textTransform: 'uppercase' }}>
+                                Recent Assessment Performance
+                            </span>
+                            <span style={{
+                                fontSize: '11px',
+                                fontWeight: 'bold',
+                                padding: '2px 8px',
+                                borderRadius: '4px',
+                                backgroundColor: latest_assessment.passed ? '#dcfce7' : '#fee2e2',
+                                color: latest_assessment.passed ? '#15803d' : '#991b1b'
+                            }}>
+                                {latest_assessment.passed ? '✓ PASSED' : '✕ NEEDS IMPROVEMENT'}
+                            </span>
+                        </div>
+                        <h4 style={{ margin: '4px 0 0 0', color: '#0f172a', fontSize: '16px' }}>
+                            {latest_assessment.assessment_title}
+                        </h4>
+                        <p style={{ margin: '4px 0 0 0', color: '#64748b', fontSize: '13px' }}>
+                            Score: <strong>{latest_assessment.score} / {latest_assessment.total_marks}</strong> ({latest_assessment.percentage}%) • Completed on {new Date(latest_assessment.submitted_at).toLocaleDateString()}
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => navigate('/app/assessments')}
+                        style={{ padding: '8px 16px', backgroundColor: '#0066cc', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
+                    >
+                        Review Assessment & Mistakes →
+                    </button>
+                </div>
+            )}
 
             {/* Category Progress Section */}
             <div style={{ padding: '25px', backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0' }}>

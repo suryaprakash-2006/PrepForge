@@ -268,4 +268,30 @@ export const submitAssessmentAttempt = async (token, attemptId) => {
     return await response.json();
 };
 
+export const getAssessmentResult = async (token, attemptId) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/assessment-attempts/${attemptId}/result`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to fetch assessment result');
+    }
+    return await response.json();
+};
+
+export const createWeaknessFromAttempt = async (token, attemptId, data) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/assessment-attempts/${attemptId}/weaknesses`, {
+        method: 'POST',
+        headers: getHeaders(token),
+        body: JSON.stringify(data)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to add mistake to weaknesses');
+    }
+    return await response.json();
+};
+
+
 

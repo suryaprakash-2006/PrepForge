@@ -6,7 +6,8 @@ from app.schemas.dashboard import (
     OverallProgress,
     CurrentWeekProgress,
     TodayProgress,
-    CategoryProgress
+    CategoryProgress,
+    LatestAssessmentProgress
 )
 
 def calc_percentage(completed: int, total: int) -> float:
@@ -129,10 +130,31 @@ async def get_dashboard_data(user_id: str) -> DashboardResponse:
             completed_tasks=c_comp,
             completion_percentage=calc_percentage(c_comp, c_tot)
         ))
+
+    # 6. Latest assessment aggregation
+    latest_att = await db["assessment_attempts"].find_one(
+        {"user_id": user_id, "status": "SUBMITTED"},
+        sort=[("submitted_at", -1)]
+    )
+    latest_assessment = None
+    if latest_att:
+        ass_doc = await db["assessments"].find_one({"id": latest_att.get("assessment_id")})
+        ass_title = ass_doc.get("title", latest_att.get("assessment_id")) if ass_doc else latest_att.get("assessment_id")
+        latest_assessment = LatestAssessmentProgress(
+            assessment_id=latest_att["assessment_id"],
+            assessment_title=ass_title,
+            attempt_id=latest_att["id"],
+            percentage=latest_att.get("percentage", 0.0),
+            score=latest_att.get("score", 0),
+            total_marks=latest_att.get("total_marks", 0),
+            passed=bool(latest_att.get("passed", False)),
+            submitted_at=latest_att.get("submitted_at")
+        )
         
     return DashboardResponse(
         overall=overall,
         current_week=current_week,
         today=today,
-        categories=categories
+        categories=categories,
+        latest_assessment=latest_assessment
     )

@@ -14,6 +14,10 @@ class WeaknessStatus(str, Enum):
     REVIEWED = "REVIEWED"
     RESOLVED = "RESOLVED"
 
+class WeaknessSourceType(str, Enum):
+    MANUAL = "MANUAL"
+    ASSESSMENT = "ASSESSMENT"
+
 class WeaknessCreate(BaseModel):
     model_config = {"extra": "forbid"}
     
@@ -25,6 +29,10 @@ class WeaknessCreate(BaseModel):
     retry_date: Optional[datetime] = None
     date: Optional[datetime] = None
     status: Optional[WeaknessStatus] = WeaknessStatus.OPEN
+    source_type: Optional[WeaknessSourceType] = WeaknessSourceType.MANUAL
+    source_assessment_id: Optional[str] = None
+    source_attempt_id: Optional[str] = None
+    source_question_id: Optional[str] = None
 
     @field_validator("topic", "problem_concept", "what_i_got_wrong", "correct_concept")
     @classmethod
@@ -64,5 +72,9 @@ class WeaknessResponse(BaseModel):
     priority: WeaknessPriority
     retry_date: Optional[datetime] = None
     status: WeaknessStatus
+    source_type: Optional[WeaknessSourceType] = WeaknessSourceType.MANUAL
+    source_assessment_id: Optional[str] = None
+    source_attempt_id: Optional[str] = None
+    source_question_id: Optional[str] = None
     created_at: datetime
     updated_at: datetime

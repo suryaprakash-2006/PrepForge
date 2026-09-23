@@ -474,6 +474,11 @@ const Weaknesses = () => {
                                             <span style={{ fontSize: '12px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '4px', backgroundColor: sta.bg, color: sta.text, border: `1px solid ${sta.border}` }}>
                                                 {item.status}
                                             </span>
+                                            {item.source_type === 'ASSESSMENT' && (
+                                                <span style={{ fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '4px', backgroundColor: '#e0e7ff', color: '#3730a3', border: '1px solid #c7d2fe' }}>
+                                                    🎯 Assessment: {item.source_assessment_id || 'Mistake'}
+                                                </span>
+                                            )}
                                             {due && (
                                                 <span style={{ fontSize: '11px', fontWeight: 'bold', padding: '2px 6px', borderRadius: '4px', backgroundColor: '#fee2e2', color: '#dc2626' }}>
                                                     ⚠️ Due for Review

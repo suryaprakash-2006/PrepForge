@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { getAssessments, getAssessmentAttempts, startAssessmentAttempt, submitAssessmentAnswer, submitAssessmentAttempt } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import {
+    getAssessments,
+    getAssessmentAttempts,
+    startAssessmentAttempt,
+    submitAssessmentAnswer,
+    submitAssessmentAttempt,
+    getAssessmentResult,
+    createWeaknessFromAttempt
+} from '../services/api';
 
 const TYPE_COLORS = {
     BASELINE: { bg: '#e0e7ff', text: '#3730a3', border: '#c7d2fe' },
@@ -15,6 +24,7 @@ const DIFFICULTY_COLORS = {
 };
 
 const Assessments = () => {
+    const navigate = useNavigate();
     const [assessments, setAssessments] = useState([]);
     const [attempts, setAttempts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -27,7 +37,12 @@ const Assessments = () => {
     const [userAnswers, setUserAnswers] = useState({}); // { [qId]: selectedOption }
     const [savingAnswer, setSavingAnswer] = useState(false);
     const [submitting, setSubmitting] = useState(false);
-    const [attemptResult, setAttemptResult] = useState(null);
+
+    // Detailed Result & Mistake Review State
+    const [detailedResult, setDetailedResult] = useState(null);
+    const [resultFilter, setResultFilter] = useState('ALL'); // 'ALL', 'MISTAKES', 'CORRECT'
+    const [addingWeaknessId, setAddingWeaknessId] = useState(null);
+    const [weaknessSuccessMsg, setWeaknessSuccessMsg] = useState('');
 
     const fetchData = async () => {
         setLoading(true);
@@ -61,7 +76,7 @@ const Assessments = () => {
             setActiveQuestions(startData.questions || []);
             setCurrentQIndex(0);
             setUserAnswers({});
-            setAttemptResult(null);
+            setDetailedResult(null);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (err) {
             setError(err.message || 'Failed to start assessment');
@@ -99,11 +114,15 @@ const Assessments = () => {
         setError('');
         try {
             const token = localStorage.getItem('token');
-            const result = await submitAssessmentAttempt(token, activeAttempt.attempt_id);
-            setAttemptResult(result);
+            await submitAssessmentAttempt(token, activeAttempt.attempt_id);
+            // Fetch detailed result immediately after submission
+            const fullResult = await getAssessmentResult(token, activeAttempt.attempt_id);
+            setActiveAttempt(null);
+            setDetailedResult(fullResult);
             // Refresh past attempts list in background
             const updatedAttempts = await getAssessmentAttempts(token);
             setAttempts(updatedAttempts);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (err) {
             setError(err.message || 'Failed to submit assessment');
         } finally {
@@ -111,14 +130,70 @@ const Assessments = () => {
         }
     };
 
+    const handleViewResult = async (attemptId) => {
+        setError('');
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const fullResult = await getAssessmentResult(token, attemptId);
+            setDetailedResult(fullResult);
+            setActiveAttempt(null);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (err) {
+            setError(err.message || 'Failed to load assessment result');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleExitAttempt = () => {
         setActiveAttempt(null);
         setActiveQuestions([]);
         setUserAnswers({});
-        setAttemptResult(null);
+        setDetailedResult(null);
         setCurrentQIndex(0);
         fetchData();
     };
+
+    const handleAddToWeaknesses = async (question) => {
+        if (!detailedResult) return;
+        setAddingWeaknessId(question.question_id);
+        setError('');
+        setWeaknessSuccessMsg('');
+        try {
+            const token = localStorage.getItem('token');
+            await createWeaknessFromAttempt(token, detailedResult.attempt_id, {
+                question_id: question.question_id,
+                priority: 'HIGH'
+            });
+
+            // Update question in local state
+            setDetailedResult(prev => {
+                if (!prev) return prev;
+                return {
+                    ...prev,
+                    questions: prev.questions.map(q =>
+                        q.question_id === question.question_id
+                            ? { ...q, is_in_weaknesses: true }
+                            : q
+                    )
+                };
+            });
+            setWeaknessSuccessMsg(`Added mistake from "${question.topic}" to Weakness Manager.`);
+            setTimeout(() => setWeaknessSuccessMsg(''), 4000);
+        } catch (err) {
+            setError(err.message || 'Failed to add weakness');
+        } finally {
+            setAddingWeaknessId(null);
+        }
+    };
+
+    // Filter questions in detailed results
+    const filteredQuestions = detailedResult ? detailedResult.questions.filter(q => {
+        if (resultFilter === 'MISTAKES') return !q.is_correct;
+        if (resultFilter === 'CORRECT') return q.is_correct;
+        return true;
+    }) : [];
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
@@ -127,9 +202,19 @@ const Assessments = () => {
                 <div>
                     <h2 style={{ margin: 0, color: '#1e293b' }}>Assessment Engine</h2>
                     <p style={{ margin: '5px 0 0 0', color: '#64748b', fontSize: '14px' }}>
-                        Curriculum-aligned milestone quizzes, baseline diagnostics, and scoring history.
+                        Curriculum-aligned milestone quizzes, baseline diagnostics, score breakdown, and mistake analysis.
                     </p>
                 </div>
+                {detailedResult && (
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <button
+                            onClick={() => navigate('/app/weaknesses')}
+                            style={{ padding: '8px 14px', backgroundColor: '#f1f5f9', color: '#0066cc', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '13px', fontWeight: '500', cursor: 'pointer' }}
+                        >
+                            Open Weakness Manager →
+                        </button>
+                    </div>
+                )}
             </div>
 
             {error && (
@@ -138,8 +223,14 @@ const Assessments = () => {
                 </div>
             )}
 
+            {weaknessSuccessMsg && (
+                <div style={{ padding: '12px 16px', backgroundColor: '#dcfce7', border: '1px solid #86efac', borderRadius: '6px', color: '#166534', fontSize: '14px' }}>
+                    ✓ {weaknessSuccessMsg}
+                </div>
+            )}
+
             {/* ACTIVE ATTEMPT RUNNER / MODAL */}
-            {activeAttempt && !attemptResult && (
+            {activeAttempt && !detailedResult && (
                 <div style={{ padding: '25px', backgroundColor: '#ffffff', borderRadius: '8px', border: '2px solid #0066cc', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
                     {/* Active Header */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e2e8f0', paddingBottom: '15px', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
@@ -293,46 +384,270 @@ const Assessments = () => {
                 </div>
             )}
 
-            {/* ATTEMPT RESULT BANNER */}
-            {attemptResult && (
-                <div style={{
-                    padding: '25px',
-                    borderRadius: '8px',
-                    backgroundColor: attemptResult.passed ? '#f0fdf4' : '#fff5f5',
-                    border: `2px solid ${attemptResult.passed ? '#22c55e' : '#ef4444'}`,
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
-                }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-                        <div>
-                            <span style={{
-                                display: 'inline-block',
-                                padding: '4px 10px',
-                                borderRadius: '12px',
-                                fontSize: '13px',
-                                fontWeight: 'bold',
-                                backgroundColor: attemptResult.passed ? '#dcfce7' : '#fee2e2',
-                                color: attemptResult.passed ? '#15803d' : '#991b1b',
-                                marginBottom: '8px'
-                            }}>
-                                {attemptResult.passed ? '✓ PASSED' : '✕ NEEDS IMPROVEMENT'}
-                            </span>
-                            <h3 style={{ margin: 0, color: '#0f172a' }}>Assessment Completed</h3>
-                            <p style={{ margin: '6px 0 0 0', color: '#475569', fontSize: '14px' }}>
-                                Score: <strong>{attemptResult.score} / {attemptResult.total_marks}</strong> ({attemptResult.percentage}%)
-                            </p>
+            {/* DETAILED RESULTS & MISTAKE REVIEW SCREEN */}
+            {detailedResult && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {/* Results Overview Banner */}
+                    <div style={{
+                        padding: '25px',
+                        borderRadius: '8px',
+                        backgroundColor: detailedResult.passed ? '#f0fdf4' : '#fff5f5',
+                        border: `2px solid ${detailedResult.passed ? '#22c55e' : '#ef4444'}`,
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '15px' }}>
+                            <div>
+                                <span style={{
+                                    display: 'inline-block',
+                                    padding: '4px 10px',
+                                    borderRadius: '12px',
+                                    fontSize: '13px',
+                                    fontWeight: 'bold',
+                                    backgroundColor: detailedResult.passed ? '#dcfce7' : '#fee2e2',
+                                    color: detailedResult.passed ? '#15803d' : '#991b1b',
+                                    marginBottom: '8px'
+                                }}>
+                                    {detailedResult.passed ? '✓ PASSED' : '✕ NEEDS IMPROVEMENT'}
+                                </span>
+                                <h3 style={{ margin: '0 0 6px 0', color: '#0f172a' }}>
+                                    {detailedResult.assessment_title} — Performance Results
+                                </h3>
+                                <p style={{ margin: 0, color: '#475569', fontSize: '14px' }}>
+                                    Final Score: <strong>{detailedResult.score} / {detailedResult.total_marks}</strong> ({detailedResult.percentage}%)
+                                </p>
+                            </div>
+                            <button
+                                onClick={handleExitAttempt}
+                                style={{ padding: '9px 18px', backgroundColor: '#0066cc', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '13px' }}
+                            >
+                                Back to All Assessments
+                            </button>
                         </div>
-                        <button
-                            onClick={handleExitAttempt}
-                            style={{ padding: '10px 20px', backgroundColor: '#0066cc', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}
-                        >
-                            Return to Assessments
-                        </button>
+
+                        {/* Breakdown Metrics */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginTop: '20px' }}>
+                            <div style={{ padding: '10px 14px', backgroundColor: '#ffffff', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase' }}>Total Questions</div>
+                                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#0f172a', marginTop: '2px' }}>{detailedResult.summary.total_questions}</div>
+                            </div>
+                            <div style={{ padding: '10px 14px', backgroundColor: '#ffffff', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                                <div style={{ fontSize: '11px', color: '#166534', fontWeight: 'bold', textTransform: 'uppercase' }}>Correct Answers</div>
+                                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#15803d', marginTop: '2px' }}>{detailedResult.summary.correct_count}</div>
+                            </div>
+                            <div style={{ padding: '10px 14px', backgroundColor: '#ffffff', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                                <div style={{ fontSize: '11px', color: '#991b1b', fontWeight: 'bold', textTransform: 'uppercase' }}>Incorrect Answers</div>
+                                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#dc2626', marginTop: '2px' }}>{detailedResult.summary.incorrect_count}</div>
+                            </div>
+                            <div style={{ padding: '10px 14px', backgroundColor: '#ffffff', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                                <div style={{ fontSize: '11px', color: '#92400e', fontWeight: 'bold', textTransform: 'uppercase' }}>Unanswered</div>
+                                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#d97706', marginTop: '2px' }}>{detailedResult.summary.unanswered_count}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Question Breakdown Filter & List */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                            <h4 style={{ margin: 0, color: '#1e293b', fontSize: '16px' }}>
+                                Question Analysis & Mistake Log
+                            </h4>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                    onClick={() => setResultFilter('ALL')}
+                                    style={{
+                                        padding: '6px 12px',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                        border: '1px solid #cbd5e1',
+                                        backgroundColor: resultFilter === 'ALL' ? '#0066cc' : '#ffffff',
+                                        color: resultFilter === 'ALL' ? '#ffffff' : '#334155',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    All ({detailedResult.questions.length})
+                                </button>
+                                <button
+                                    onClick={() => setResultFilter('MISTAKES')}
+                                    style={{
+                                        padding: '6px 12px',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                        border: '1px solid #fecaca',
+                                        backgroundColor: resultFilter === 'MISTAKES' ? '#dc2626' : '#fff5f5',
+                                        color: resultFilter === 'MISTAKES' ? '#ffffff' : '#991b1b',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Mistakes & Unanswered ({detailedResult.summary.incorrect_count + detailedResult.summary.unanswered_count})
+                                </button>
+                                <button
+                                    onClick={() => setResultFilter('CORRECT')}
+                                    style={{
+                                        padding: '6px 12px',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        fontWeight: 'bold',
+                                        border: '1px solid #bbf7d0',
+                                        backgroundColor: resultFilter === 'CORRECT' ? '#16a34a' : '#f0fdf4',
+                                        color: resultFilter === 'CORRECT' ? '#ffffff' : '#15803d',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    Correct ({detailedResult.summary.correct_count})
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Questions List */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            {filteredQuestions.map((q) => {
+                                const isMistake = !q.is_correct;
+                                const isUnanswered = !q.selected_answer;
+                                const diff = DIFFICULTY_COLORS[q.difficulty] || DIFFICULTY_COLORS.MEDIUM;
+
+                                return (
+                                    <div
+                                        key={q.question_id}
+                                        style={{
+                                            padding: '18px 20px',
+                                            backgroundColor: '#ffffff',
+                                            borderRadius: '8px',
+                                            border: `1px solid ${q.is_correct ? '#bbf7d0' : '#fecaca'}`,
+                                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
+                                        }}
+                                    >
+                                        {/* Question Card Header */}
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                                <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#0f172a' }}>
+                                                    Q{q.question_number}.
+                                                </span>
+                                                <span style={{ fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: '4px', backgroundColor: '#f1f5f9', color: '#334155' }}>
+                                                    {q.category} — {q.topic}
+                                                </span>
+                                                <span style={{ fontSize: '11px', fontWeight: 'bold', padding: '2px 6px', borderRadius: '4px', backgroundColor: diff.bg, color: diff.text }}>
+                                                    {q.difficulty}
+                                                </span>
+                                                <span style={{
+                                                    fontSize: '11px',
+                                                    fontWeight: 'bold',
+                                                    padding: '2px 8px',
+                                                    borderRadius: '4px',
+                                                    backgroundColor: q.is_correct ? '#dcfce7' : (isUnanswered ? '#fef3c7' : '#fee2e2'),
+                                                    color: q.is_correct ? '#15803d' : (isUnanswered ? '#92400e' : '#991b1b')
+                                                }}>
+                                                    {q.is_correct ? '✓ Correct (+1)' : (isUnanswered ? '⚠️ Unanswered (0)' : '✕ Incorrect (0)')}
+                                                </span>
+                                            </div>
+
+                                            {/* Weakness Action Button for Mistakes */}
+                                            {isMistake && (
+                                                <div>
+                                                    {q.is_in_weaknesses ? (
+                                                        <span style={{
+                                                            fontSize: '12px',
+                                                            fontWeight: 'bold',
+                                                            padding: '4px 10px',
+                                                            borderRadius: '4px',
+                                                            backgroundColor: '#dcfce7',
+                                                            color: '#166534',
+                                                            border: '1px solid #86efac',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '4px'
+                                                        }}>
+                                                            ✓ Added to Weaknesses
+                                                        </span>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => handleAddToWeaknesses(q)}
+                                                            disabled={addingWeaknessId === q.question_id}
+                                                            style={{
+                                                                padding: '5px 12px',
+                                                                backgroundColor: '#ef4444',
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                borderRadius: '4px',
+                                                                fontSize: '12px',
+                                                                fontWeight: 'bold',
+                                                                cursor: 'pointer'
+                                                            }}
+                                                        >
+                                                            {addingWeaknessId === q.question_id ? 'Adding...' : '+ Add to Weaknesses'}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Prompt */}
+                                        <div style={{ fontSize: '15px', fontWeight: '600', color: '#1e293b', marginBottom: '12px' }}>
+                                            {q.question}
+                                        </div>
+
+                                        {/* Options Breakdown */}
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
+                                            {q.options.map((opt, optIdx) => {
+                                                const isCorrectOption = (opt.trim().toLowerCase() === q.correct_answer.trim().toLowerCase());
+                                                const isUserSelected = (q.selected_answer && opt.trim().toLowerCase() === q.selected_answer.trim().toLowerCase());
+
+                                                let bg = '#f8fafc';
+                                                let border = '#e2e8f0';
+                                                let badge = null;
+
+                                                if (isCorrectOption && isUserSelected) {
+                                                    bg = '#dcfce7';
+                                                    border = '#86efac';
+                                                    badge = <span style={{ color: '#15803d', fontWeight: 'bold', fontSize: '11px' }}>(Your Answer — Correct ✓)</span>;
+                                                } else if (isCorrectOption) {
+                                                    bg = '#f0fdf4';
+                                                    border = '#bbf7d0';
+                                                    badge = <span style={{ color: '#16a34a', fontWeight: 'bold', fontSize: '11px' }}>(Correct Answer ✓)</span>;
+                                                } else if (isUserSelected) {
+                                                    bg = '#fee2e2';
+                                                    border = '#fca5a5';
+                                                    badge = <span style={{ color: '#dc2626', fontWeight: 'bold', fontSize: '11px' }}>(Your Answer — Incorrect ✕)</span>;
+                                                }
+
+                                                return (
+                                                    <div
+                                                        key={optIdx}
+                                                        style={{
+                                                            padding: '8px 12px',
+                                                            borderRadius: '4px',
+                                                            backgroundColor: bg,
+                                                            border: `1px solid ${border}`,
+                                                            fontSize: '13px',
+                                                            color: '#334155',
+                                                            display: 'flex',
+                                                            justifyContent: 'space-between',
+                                                            alignItems: 'center'
+                                                        }}
+                                                    >
+                                                        <span>{opt}</span>
+                                                        {badge}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Explanation Box */}
+                                        <div style={{ padding: '10px 14px', backgroundColor: '#f1f5f9', borderRadius: '6px', borderLeft: '3px solid #0066cc', fontSize: '13px', color: '#334155' }}>
+                                            <strong style={{ color: '#0f172a' }}>Explanation: </strong>
+                                            {q.explanation}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
             )}
 
             {/* AVAILABLE ASSESSMENTS SECTION */}
-            {!activeAttempt && (
+            {!activeAttempt && !detailedResult && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     <h3 style={{ margin: '0 0 5px 0', color: '#1e293b' }}>Available Assessments</h3>
                     {loading ? (
@@ -402,9 +717,9 @@ const Assessments = () => {
             )}
 
             {/* PREVIOUS ATTEMPTS SECTION */}
-            {!activeAttempt && (
+            {!activeAttempt && !detailedResult && (
                 <div style={{ padding: '25px', backgroundColor: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                    <h3 style={{ margin: '0 0 15px 0', color: '#1e293b' }}>Previous Attempts</h3>
+                    <h3 style={{ margin: '0 0 15px 0', color: '#1e293b' }}>Previous Attempts & Results</h3>
                     {attempts.length === 0 ? (
                         <div style={{ padding: '30px', textAlign: 'center', backgroundColor: '#f8fafc', borderRadius: '6px', color: '#64748b', fontSize: '13px' }}>
                             No attempts recorded yet. Select an assessment above to begin!
@@ -420,6 +735,7 @@ const Assessments = () => {
                                         <th style={{ padding: '10px' }}>Percentage</th>
                                         <th style={{ padding: '10px' }}>Status</th>
                                         <th style={{ padding: '10px' }}>Result</th>
+                                        <th style={{ padding: '10px', textAlign: 'right' }}>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -465,6 +781,25 @@ const Assessments = () => {
                                                     <span style={{ color: '#94a3b8' }}>In Progress</span>
                                                 )}
                                             </td>
+                                            <td style={{ padding: '12px 10px', textAlign: 'right' }}>
+                                                {att.status === 'SUBMITTED' && (
+                                                    <button
+                                                        onClick={() => handleViewResult(att.attempt_id)}
+                                                        style={{
+                                                            padding: '5px 10px',
+                                                            backgroundColor: '#f1f5f9',
+                                                            border: '1px solid #cbd5e1',
+                                                            borderRadius: '4px',
+                                                            fontSize: '12px',
+                                                            color: '#0066cc',
+                                                            fontWeight: 'bold',
+                                                            cursor: 'pointer'
+                                                        }}
+                                                    >
+                                                        Review Mistakes →
+                                                    </button>
+                                                )}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -478,3 +813,4 @@ const Assessments = () => {
 };
 
 export default Assessments;
+
