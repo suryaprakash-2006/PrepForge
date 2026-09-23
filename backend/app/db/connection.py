@@ -89,12 +89,23 @@ class _DatabaseClient:
         await self._database["coding_problems"].create_index("id", unique=True)
         await self._database["coding_assessment_attempts"].create_index([("user_id", 1), ("assessment_id", 1)])
         await self._database["coding_assessment_attempts"].create_index([("user_id", 1), ("started_at", -1)])
+        await self._database["coding_test_cases"].create_index("id", unique=True)
+        await self._database["coding_test_cases"].create_index("problem_id")
+        await self._database["coding_execution_jobs"].create_index("id", unique=True)
+        await self._database["coding_execution_jobs"].create_index("status")
+        await self._database["coding_execution_jobs"].create_index([("user_id", 1), ("attempt_id", 1)])
+        await self._database["coding_execution_jobs"].create_index("created_at")
+        await self._database["coding_execution_results"].create_index("id", unique=True)
+        await self._database["coding_execution_results"].create_index("job_id", unique=True)
+        await self._database["coding_execution_results"].create_index("attempt_id")
         
-        # Seed initial assessments, question bank, and coding assessments
+        # Seed initial assessments, question bank, coding assessments, and test cases
         from app.data.assessment_seed import seed_assessments
         from app.data.coding_assessment_seed import seed_coding_assessments
+        from app.services.coding_test_cases import seed_coding_test_cases
         await seed_assessments(self._database)
         await seed_coding_assessments(self._database)
+        await seed_coding_test_cases(self._database)
         
         logger.info(
             "MongoDB connected — database: '%s'", settings.DATABASE_NAME

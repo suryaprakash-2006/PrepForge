@@ -18,10 +18,12 @@ class ProblemSubmissionRequest(BaseModel):
     language: str = Field(..., min_length=1, max_length=32, description="Target programming language")
 
 class ProblemSubmissionResponse(BaseModel):
-    status: str = "saved"
+    status: str = "QUEUED"
+    submission_id: Optional[str] = None
+    job_id: Optional[str] = None
     problem_id: str
     language: str
-    submission_status: CodingSubmissionStatus
+    submission_status: CodingSubmissionStatus = CodingSubmissionStatus.SUBMITTED
     saved_at: datetime
 
 class CodingProblemState(BaseModel):

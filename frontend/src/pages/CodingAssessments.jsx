@@ -172,7 +172,9 @@ const CodingAssessments = () => {
                 ...prev,
                 [problemId]: {
                     ...prev[problemId],
-                    submission_status: 'SUBMITTED'
+                    submission_status: 'SUBMITTED',
+                    job_id: res.job_id,
+                    job_status: res.status
                 }
             }));
         } catch (err) {
@@ -515,7 +517,7 @@ const CodingAssessments = () => {
                                             borderRadius: '50%',
                                             background: codeState[currentProblem.id]?.submission_status === 'SUBMITTED' ? '#34d399' : '#6b7280'
                                         }} />
-                                        {codeState[currentProblem.id]?.submission_status === 'SUBMITTED' ? 'Saved & Marked' : 'Unsaved Draft'}
+                                        {codeState[currentProblem.id]?.submission_status === 'SUBMITTED' ? 'Saved & Queued' : 'Unsaved Draft'}
                                     </span>
 
                                     <button

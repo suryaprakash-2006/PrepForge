@@ -1,5 +1,17 @@
 from fastapi import APIRouter
-from app.api.routes import auth, weeks, tasks, dashboard, weaknesses, weekly_reviews, assessments, assessment_attempts, coding_assessments, coding_assessment_attempts
+from app.api.routes import (
+    auth,
+    weeks,
+    tasks,
+    dashboard,
+    weaknesses,
+    weekly_reviews,
+    assessments,
+    assessment_attempts,
+    coding_assessments,
+    coding_assessment_attempts,
+    coding_execution
+)
 
 api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["Auth"])
@@ -12,5 +24,6 @@ api_router.include_router(assessments.router, prefix="/assessments", tags=["Asse
 api_router.include_router(assessment_attempts.router, prefix="/assessment-attempts", tags=["Assessment Attempts"])
 api_router.include_router(coding_assessments.router, prefix="/coding-assessments", tags=["Coding Assessments"])
 api_router.include_router(coding_assessment_attempts.router, prefix="/coding-assessment-attempts", tags=["Coding Assessment Attempts"])
+api_router.include_router(coding_execution.router, prefix="/coding-execution", tags=["Coding Execution"])
 
 

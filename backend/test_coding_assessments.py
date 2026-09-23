@@ -141,7 +141,7 @@ def two_sum_sorted(numbers: list[int], target: int) -> list[int]:
     )
     assert sub_res.status_code == 200
     sub_data = sub_res.json()
-    assert sub_data["status"] == "saved"
+    assert sub_data["status"] in ["saved", "QUEUED"]
     assert sub_data["problem_id"] == "two-sum-sorted"
     assert sub_data["submission_status"] == "SUBMITTED"
     assert sub_data["saved_at"] is not None

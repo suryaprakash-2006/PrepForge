@@ -378,5 +378,41 @@ export const submitCodingAttempt = async (token, attemptId) => {
     return await response.json();
 };
 
+export const getExecutionJob = async (token, jobId) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/coding-execution/jobs/${jobId}`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to fetch execution job');
+    }
+    return await response.json();
+};
+
+export const getExecutionResult = async (token, jobId) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/coding-execution/results/${jobId}`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to fetch execution result');
+    }
+    return await response.json();
+};
+
+export const getProblemTestCases = async (token, problemId) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/coding-execution/problems/${problemId}/test-cases`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to fetch problem test cases');
+    }
+    return await response.json();
+};
+
 
 

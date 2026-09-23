@@ -305,6 +305,7 @@ async def save_problem_submission(
         )
 
     now = datetime.now(timezone.utc)
+    submission_id = str(uuid.uuid4())
 
     # Update problem_state in database
     await db["coding_assessment_attempts"].update_one(
@@ -320,8 +321,19 @@ async def save_problem_submission(
         array_filters=[{"elem.problem_id": problem_id}]
     )
 
+    # Create asynchronous execution job (QUEUED)
+    from app.services.coding_execution import create_execution_job
+    job = await create_execution_job(
+        user_id=user_id,
+        attempt_id=attempt_id,
+        problem_id=problem_id,
+        source_submission_id=submission_id
+    )
+
     return ProblemSubmissionResponse(
-        status="saved",
+        status="QUEUED",
+        submission_id=submission_id,
+        job_id=job.id,
         problem_id=problem_id,
         language=request.language,
         submission_status=CodingSubmissionStatus.SUBMITTED,
