@@ -11,6 +11,7 @@ import Roadmap from './pages/Roadmap'
 import Weaknesses from './pages/Weaknesses'
 import WeeklyReview from './pages/WeeklyReview'
 import Assessments from './pages/Assessments'
+import CodingAssessments from './pages/CodingAssessments'
 import './index.css'
 
 
@@ -89,6 +90,7 @@ function App() {
             <Route path="weaknesses" element={<Weaknesses />} />
             <Route path="weekly-review" element={<WeeklyReview />} />
             <Route path="assessments" element={<Assessments />} />
+            <Route path="coding-assessments" element={<CodingAssessments />} />
           </Route>
 
 

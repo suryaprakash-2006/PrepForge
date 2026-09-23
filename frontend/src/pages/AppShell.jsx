@@ -7,10 +7,10 @@ const AppShell = () => {
     const location = useLocation();
 
     return (
-        <div style={{ maxWidth: '900px', margin: '40px auto', padding: '30px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+        <div style={{ maxWidth: '1200px', margin: '40px auto', padding: '30px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #eaeaea', paddingBottom: '15px', marginBottom: '20px' }}>
                 <h1 style={{ margin: 0 }}>PrepForge</h1>
-                <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
                     <Link 
                         to="/app/dashboard" 
                         style={{ color: location.pathname === '/app/dashboard' ? '#0066cc' : '#555', textDecoration: 'none', fontWeight: location.pathname === '/app/dashboard' ? 'bold' : 'normal' }}
@@ -39,7 +39,13 @@ const AppShell = () => {
                         to="/app/assessments" 
                         style={{ color: location.pathname === '/app/assessments' ? '#0066cc' : '#555', textDecoration: 'none', fontWeight: location.pathname === '/app/assessments' ? 'bold' : 'normal' }}
                     >
-                        Assessments
+                        MCQ Quizzes
+                    </Link>
+                    <Link 
+                        to="/app/coding-assessments" 
+                        style={{ color: location.pathname === '/app/coding-assessments' ? '#0066cc' : '#555', textDecoration: 'none', fontWeight: location.pathname === '/app/coding-assessments' ? 'bold' : 'normal' }}
+                    >
+                        Coding Tests
                     </Link>
                     <button 
                         onClick={logout}

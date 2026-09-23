@@ -71,17 +71,30 @@ class _DatabaseClient:
         await self._database["weaknesses"].create_index([("user_id", 1), ("status", 1)])
         await self._database["weaknesses"].create_index([("user_id", 1), ("priority", 1)])
         await self._database["weaknesses"].create_index([("user_id", 1), ("retry_date", 1)])
-        await self._database["weaknesses"].create_index([("user_id", 1), ("source_attempt_id", 1), ("source_question_id", 1)], unique=True, sparse=True)
+        await self._database["weaknesses"].create_index(
+            [("user_id", 1), ("source_attempt_id", 1), ("source_question_id", 1)],
+            unique=True,
+            partialFilterExpression={
+                "source_attempt_id": {"$type": "string"},
+                "source_question_id": {"$type": "string"}
+            }
+        )
         await self._database["weekly_reviews"].create_index([("user_id", 1), ("week_number", 1)], unique=True)
         await self._database["assessments"].create_index("id", unique=True)
         await self._database["assessment_questions"].create_index([("assessment_id", 1), ("question_number", 1)], unique=True)
         await self._database["assessment_questions"].create_index("id", unique=True)
         await self._database["assessment_attempts"].create_index([("user_id", 1), ("assessment_id", 1)])
         await self._database["assessment_attempts"].create_index([("user_id", 1), ("started_at", -1)])
+        await self._database["coding_assessments"].create_index("id", unique=True)
+        await self._database["coding_problems"].create_index("id", unique=True)
+        await self._database["coding_assessment_attempts"].create_index([("user_id", 1), ("assessment_id", 1)])
+        await self._database["coding_assessment_attempts"].create_index([("user_id", 1), ("started_at", -1)])
         
-        # Seed initial assessments and question bank
+        # Seed initial assessments, question bank, and coding assessments
         from app.data.assessment_seed import seed_assessments
+        from app.data.coding_assessment_seed import seed_coding_assessments
         await seed_assessments(self._database)
+        await seed_coding_assessments(self._database)
         
         logger.info(
             "MongoDB connected — database: '%s'", settings.DATABASE_NAME

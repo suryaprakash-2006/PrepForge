@@ -293,5 +293,90 @@ export const createWeaknessFromAttempt = async (token, attemptId, data) => {
     return await response.json();
 };
 
+export const getCodingAssessments = async (token) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/coding-assessments`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to fetch coding assessments');
+    }
+    return await response.json();
+};
+
+export const getCodingAssessment = async (token, assessmentId) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/coding-assessments/${assessmentId}`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to fetch coding assessment');
+    }
+    return await response.json();
+};
+
+export const startCodingAttempt = async (token, assessmentId) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/coding-assessments/${assessmentId}/attempts`, {
+        method: 'POST',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to start coding assessment attempt');
+    }
+    return await response.json();
+};
+
+export const getUserCodingAttempts = async (token) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/coding-assessment-attempts`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to fetch coding attempts');
+    }
+    return await response.json();
+};
+
+export const getCodingAttempt = async (token, attemptId) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/coding-assessment-attempts/${attemptId}`, {
+        method: 'GET',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to fetch coding attempt');
+    }
+    return await response.json();
+};
+
+export const submitCodingProblem = async (token, attemptId, problemId, code, language) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/coding-assessment-attempts/${attemptId}/problems/${problemId}/submit`, {
+        method: 'POST',
+        headers: getHeaders(token),
+        body: JSON.stringify({ code, language })
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to save problem code');
+    }
+    return await response.json();
+};
+
+export const submitCodingAttempt = async (token, attemptId) => {
+    const response = await fetch(`${API_BASE_URL}/api/v1/coding-assessment-attempts/${attemptId}/submit`, {
+        method: 'POST',
+        headers: getHeaders(token)
+    });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to submit coding assessment');
+    }
+    return await response.json();
+};
+
 
 
